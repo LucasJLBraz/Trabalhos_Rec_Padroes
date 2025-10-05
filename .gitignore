@@ -1,8 +1,6 @@
-<<<<<<< HEAD
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
-=======
 # Data
 /data/
 
@@ -18,7 +16,6 @@ __pycache__/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
->>>>>>> 8709ef1 (CCDS: Inital Commit)
 *$py.class
 
 # C extensions
