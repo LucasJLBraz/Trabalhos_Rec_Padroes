@@ -177,6 +177,44 @@ class MDC:
 
 
 class MAXCO:
+    """
+    MAXCO (Maximum Cosine Correlation Classifier)
+
+    A classifier that assigns samples to the class whose centroid (mean vector) has the highest cosine correlation
+    with the sample, after mean-centering both vectors.
+
+    Parameters
+    ----------
+    X : np.ndarray
+        Feature matrix of shape (n_samples, n_features).
+    Y : np.ndarray
+        Target labels of shape (n_samples,).
+
+    Attributes
+    ----------
+    X : np.ndarray
+        Training feature matrix.
+    Y : np.ndarray
+        Training labels (flattened).
+    classes : np.ndarray
+        Unique class labels.
+    centroids : np.ndarray or None
+        Centroids (mean vectors) for each class, computed during training.
+
+    Methods
+    -------
+    train()
+        Computes and stores the centroids for each class based on the training data.
+    predict(X_new)
+        Predicts the class labels for new samples using maximum cosine correlation with class centroids.
+
+    Private Methods
+    ---------------
+    _center(v)
+        Returns the mean-centered version of vector v.
+    _cos_corr(x, c, eps=1e-12)
+        Computes the cosine correlation between mean-centered vectors x and c, with numerical stability.
+    """
     def __init__(self, X: np.ndarray, Y: np.ndarray) -> None:
         self.X = np.asarray(X)
         self.Y = np.asarray(Y).ravel()
@@ -184,6 +222,15 @@ class MAXCO:
         self.centroids = None
 
     def train(self) -> None:
+        """
+        Trains the model by computing the centroid (mean feature vector) for each class.
+
+        This method calculates the mean of the feature vectors (`self.X`) for each unique class label in `self.Y`.
+        The resulting centroids are stored in `self.centroids` as a 2D NumPy array, where each row corresponds to a class centroid.
+
+        Returns:
+            None
+        """
         centroids = []
         for c in self.classes:
             idx = self.Y == c
@@ -204,6 +251,18 @@ class MAXCO:
         return float(np.dot(x0, c0) / (nx * nc))
 
     def predict(self, X_new: np.ndarray) -> np.ndarray:
+        """
+        Predicts the class labels for the provided input samples using the trained centroids.
+
+        Parameters:
+            X_new (np.ndarray): Input data to classify. Should be of shape (n_samples, n_features) or (n_features,).
+
+        Returns:
+            np.ndarray: Predicted class labels for each input sample.
+
+        Raises:
+            ValueError: If centroids have not been initialized (i.e., the model has not been trained).
+        """
         # if self.centroids is None:
         #     self.train()
         if self.centroids is None:
