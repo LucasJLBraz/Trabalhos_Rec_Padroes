@@ -176,7 +176,42 @@ class MDC:
         return np.array(predictions)
 
 
-
 class MAXCO:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, X: np.ndarray, Y: np.ndarray) -> None:
+        self.X = np.asarray(X)
+        self.Y = np.asarray(Y).ravel()
+        self.classes = np.unique(self.Y)
+        self.centroids = None
+
+    def train(self) -> None:
+        centroids = []
+        for c in self.classes:
+            idx = self.Y == c
+            centroids.append(self.X[idx].mean(axis=0))
+        self.centroids = np.vstack(centroids)
+
+    def _center(self, v: np.ndarray) -> np.ndarray:
+        return v - np.mean(v)
+
+    def _cos_corr(self, x: np.ndarray, c: np.ndarray, eps: float = 1e-12) -> float:
+        x0 = x - x.mean()
+        c0 = c - c.mean()
+        nx = np.linalg.norm(x0)
+        nc = np.linalg.norm(c0)
+        if nx < eps or nc < eps:
+            return float("-inf")
+        # correlação cos: produto interno dos vetores centralizados / (normas)
+        return float(np.dot(x0, c0) / (nx * nc))
+
+    def predict(self, X_new: np.ndarray) -> np.ndarray:
+        # if self.centroids is None:
+        #     self.train()
+        if self.centroids is None:
+            raise ValueError("Centroids não foram inicializados. Treine o Modelo.")
+        Xn = np.atleast_2d(X_new)
+        preds = []
+        for x in Xn:
+            rhos = [self._cos_corr(x, c) for c in self.centroids]
+            k = int(np.argmax(rhos))
+            preds.append(self.classes[k])
+        return np.array(preds)
