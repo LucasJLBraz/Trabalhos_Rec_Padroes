@@ -1,4 +1,10 @@
 site_name: Trabalho1_Rec_Padroes
-# 
 site_author: Lucas José Lemos Braz
-# 
+
+nav:
+  - Home: index.md
+  - API Reference: reference.md
+
+plugins:
+  - search
+  - mkdocstrings
