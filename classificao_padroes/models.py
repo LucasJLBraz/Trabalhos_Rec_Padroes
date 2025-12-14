@@ -7,12 +7,12 @@ class KNN:
 
     Parameters
     ----------
-    k : int
-        Number of nearest neighbors to use for classification.
     X : np.ndarray
         Training data features of shape (n_samples, n_features).
     Y : np.ndarray
         Training data labels of shape (n_samples,).
+    k : int (default=2)
+        Number of nearest neighbors to use for classification.
     minkowskiOrder : float, optional (default=2)
         Order of the Minkowski distance (2 corresponds to Euclidean distance).
 
@@ -25,20 +25,20 @@ class KNN:
 
     Attributes
     ----------
-    k : int
-        Number of neighbors.
     X : np.ndarray
         Training data features.
     Y : np.ndarray
         Training data labels.
+    k : int
+        Number of neighbors.
     minkowskiOrder : float
         Order of the Minkowski distance.
     """
 
-    def __init__(self, k: int, X: np.ndarray, Y: np.ndarray, minkowskiOrder: float = 2) -> None:
-        self.k = k
+    def __init__(self, X: np.ndarray, Y: np.ndarray, k: int = 1, minkowskiOrder: float = 2) -> None:
         self.X = X
         self.Y = Y
+        self.k = k
         self.minkowskiOrder = minkowskiOrder
 
     def _distMinkowski(self, X_i) -> np.ndarray:
@@ -215,6 +215,7 @@ class MAXCO:
     _cos_corr(x, c, eps=1e-12)
         Computes the cosine correlation between mean-centered vectors x and c, with numerical stability.
     """
+
     def __init__(self, X: np.ndarray, Y: np.ndarray) -> None:
         self.X = np.asarray(X)
         self.Y = np.asarray(Y).ravel()
