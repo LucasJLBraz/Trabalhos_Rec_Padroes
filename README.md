@@ -1,14 +1,22 @@
 # Trabalho1_Rec_Padroes
 
+<<<<<<< HEAD
+[![CCDS Project template](https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter)](https://cookiecutter-data-science.drivendata.org/)
+=======
 <a target="_blank" href="https://cookiecutter-data-science.drivendata.org/">
     <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
 </a>
+>>>>>>> origin/main
 
 Implementação do Trabalho Computacional 1 de Reconhecimento de Padrões PPGETI
 
 ## Project Organization
 
+<<<<<<< HEAD
+```text
+=======
 ```
+>>>>>>> origin/main
 ├── LICENSE            <- Open-source license if one is chosen
 ├── Makefile           <- Makefile with convenience commands like `make data` or `make train`
 ├── README.md          <- The top-level README for developers using this project.
@@ -58,4 +66,7 @@ Implementação do Trabalho Computacional 1 de Reconhecimento de Padrões PPGETI
 ```
 
 --------
+<<<<<<< HEAD
+=======
 
+>>>>>>> origin/main

@@ -30,8 +30,15 @@ dependencies = [
     "pip",
     "python-dotenv",
     "scikit-learn",
+<<<<<<< HEAD
+    "seaborn>=0.13.2",
     "tqdm",
     "typer",
+    "ucimlrepo>=0.0.7",
+=======
+    "tqdm",
+    "typer",
+>>>>>>> origin/main
 ]
 requires-python = "~=3.12.0"
 
