@@ -1,6 +1,9 @@
+<<<<<<< HEAD
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
+=======
+>>>>>>> origin/main
 # Data
 /data/
 
@@ -62,10 +65,14 @@ nosetests.xml
 coverage.xml
 *.cover
 <<<<<<< HEAD
+<<<<<<< HEAD
 *.py.cover
 =======
 *.py,cover
 >>>>>>> 8709ef1 (CCDS: Inital Commit)
+=======
+*.py,cover
+>>>>>>> origin/main
 .hypothesis/
 .pytest_cache/
 cover/
@@ -88,12 +95,17 @@ instance/
 .scrapy
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Sphinx documentation
 docs/_build/
 =======
 # MkDocs documentation
 docs/site/
 >>>>>>> 8709ef1 (CCDS: Inital Commit)
+=======
+# MkDocs documentation
+docs/site/
+>>>>>>> origin/main
 
 # PyBuilder
 .pybuilder/
@@ -131,6 +143,7 @@ ipython_config.py
 #   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
 #poetry.lock
 <<<<<<< HEAD
+<<<<<<< HEAD
 #poetry.toml
 
 # pdm
@@ -140,6 +153,8 @@ ipython_config.py
 #pdm.lock
 #pdm.toml
 =======
+=======
+>>>>>>> origin/main
 
 # pdm
 #   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
@@ -148,11 +163,15 @@ ipython_config.py
 #   in version control.
 #   https://pdm.fming.dev/latest/usage/project/#working-with-version-control
 .pdm.toml
+<<<<<<< HEAD
 >>>>>>> 8709ef1 (CCDS: Inital Commit)
+=======
+>>>>>>> origin/main
 .pdm-python
 .pdm-build/
 
 # pixi
+<<<<<<< HEAD
 <<<<<<< HEAD
 #   Similar to Pipfile.lock, it is generally recommended to include pixi.lock in version control.
 #pixi.lock
@@ -164,6 +183,11 @@ ipython_config.py
 #   .pixi/ contains the environments and should not be committed
 .pixi/
 >>>>>>> 8709ef1 (CCDS: Inital Commit)
+=======
+#   pixi.lock should be committed to version control for reproducibility
+#   .pixi/ contains the environments and should not be committed
+.pixi/
+>>>>>>> origin/main
 
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
 __pypackages__/
@@ -178,9 +202,12 @@ celerybeat.pid
 # Environments
 .env
 <<<<<<< HEAD
+<<<<<<< HEAD
 .envrc
 =======
 >>>>>>> 8709ef1 (CCDS: Inital Commit)
+=======
+>>>>>>> origin/main
 .venv
 env/
 venv/
@@ -220,6 +247,7 @@ cython_debug/
 #.idea/
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Abstra
 # Abstra is an AI-powered process automation framework.
 # Ignore directories containing user credentials, local state, and settings.
@@ -235,10 +263,13 @@ cython_debug/
 
 =======
 >>>>>>> 8709ef1 (CCDS: Inital Commit)
+=======
+>>>>>>> origin/main
 # Ruff stuff:
 .ruff_cache/
 
 # PyPI configuration file
+<<<<<<< HEAD
 <<<<<<< HEAD
 .pypirc
 
@@ -256,3 +287,6 @@ __marimo__/
 =======
 .pypirc
 >>>>>>> 8709ef1 (CCDS: Inital Commit)
+=======
+.pypirc
+>>>>>>> origin/main

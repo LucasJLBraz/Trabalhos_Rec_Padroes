@@ -1,4 +1,5 @@
 site_name: Trabalho1_Rec_Padroes
+<<<<<<< HEAD
 site_author: Lucas José Lemos Braz
 
 nav:
@@ -8,3 +9,8 @@ nav:
 plugins:
   - search
   - mkdocstrings
+=======
+# 
+site_author: Lucas José Lemos Braz
+# 
+>>>>>>> origin/main
