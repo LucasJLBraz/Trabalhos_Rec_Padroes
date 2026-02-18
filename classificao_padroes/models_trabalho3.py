@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.cluster import KMeans
-from sklearn.metrics import davies_bouldin_score, calinski_harabasz_score
+from sklearn.metrics import davies_bouldin_score, calinski_harabasz_score, silhouette_score
 from sklearn.metrics.pairwise import euclidean_distances
 from scipy.spatial.distance import cdist
 from collections import Counter
@@ -169,6 +169,78 @@ def dunn_index(X, labels):
     return min_inter / max_intra
 
 
+def i_index(X, labels):
+    """
+    Calcula o Índice I (I-Index): (1/k) * (E_1/E_k) * D_k
+    Onde:
+        E_1 = distância total ao centroide global (k=1)
+        E_k = soma das distâncias intra-cluster
+        D_k = máxima distância inter-cluster (entre centroides)
+    Quanto maior, melhor.
+    """
+    unique_labels = np.unique(labels)
+    k = len(unique_labels)
+    
+    if k < 2:
+        return 0
+    
+    # Centroide global
+    global_centroid = np.mean(X, axis=0)
+    
+    # E_1: soma das distâncias ao centroide global
+    E_1 = np.sum(np.linalg.norm(X - global_centroid, axis=1))
+    
+    # E_k: soma das distâncias intra-cluster
+    E_k = 0
+    centroids = []
+    for label in unique_labels:
+        mask = (labels == label)
+        cluster_points = X[mask]
+        if len(cluster_points) == 0:
+            continue
+        centroid = np.mean(cluster_points, axis=0)
+        centroids.append(centroid)
+        E_k += np.sum(np.linalg.norm(cluster_points - centroid, axis=1))
+    
+    centroids = np.array(centroids)
+    
+    if E_k == 0 or len(centroids) < 2:
+        return 0
+    
+    # D_k: máxima distância entre centroides
+    centroid_distances = euclidean_distances(centroids)
+    D_k = np.max(centroid_distances)
+    
+    # Índice I
+    I = (1.0 / k) * (E_1 / E_k) * D_k
+    
+    return I
+
+
+def ball_hall_index(X, labels):
+    """
+    Calcula o Índice Ball-Hall: média da dispersão intra-cluster.
+    Quanto menor, melhor (clusters compactos).
+    """
+    unique_labels = np.unique(labels)
+    k = len(unique_labels)
+    
+    if k < 2:
+        return np.inf
+    
+    total_dispersion = 0
+    for label in unique_labels:
+        mask = (labels == label)
+        cluster_points = X[mask]
+        if len(cluster_points) == 0:
+            continue
+        centroid = np.mean(cluster_points, axis=0)
+        dispersion = np.sum(np.linalg.norm(cluster_points - centroid, axis=1) ** 2)
+        total_dispersion += dispersion
+    
+    return total_dispersion / k
+
+
 class ClassificadorDMP:
     """
     Classificador de Distância Mínima ao Protótipo (DMP) com Seleção Automática de K.
@@ -212,7 +284,7 @@ class ClassificadorDMP:
                 continue
 
             # Dicionário para "cachear" os modelos vencedores de cada K
-            # Estrutura: {k: {'model': KMeansObject, 'db': float, 'ch': float, 'dn': float}}
+            # Estrutura: {k: {'model': KMeansObject, 'db': float, 'ch': float, 'dn': float, ...}}
             candidates = {}
 
             # Loop para variar K
@@ -236,40 +308,59 @@ class ClassificadorDMP:
                 # Armazena tudo no dicionário de candidatos
                 candidates[k] = {
                     'model': best_model_k,  # O IMPORTANTE ESTÁ AQUI: Guardamos o modelo!
-                    'db': davies_bouldin_score(X_c, labels),      # Menor é melhor
-                    'ch': calinski_harabasz_score(X_c, labels),   # Maior é melhor
-                    'dunn': dunn_index(X_c, labels)               # Maior é melhor
+                    'db': davies_bouldin_score(X_c, labels),         # Menor é melhor
+                    'ch': calinski_harabasz_score(X_c, labels),      # Maior é melhor
+                    'dunn': dunn_index(X_c, labels),                 # Maior é melhor
+                    'silhouette': silhouette_score(X_c, labels),     # Maior é melhor
+                    'i_index': i_index(X_c, labels),                 # Maior é melhor
+                    'ball_hall': ball_hall_index(X_c, labels)        # Menor é melhor
                 }
 
-            # Passo 5: Votação para escolher K_opt
-            # Extrair listas para buscar min/max
+            # Passo 5: Seleção do K ótimo baseado na MODA (k mais frequente)
+            # Extrair listas para buscar min/max de cada índice
             ks_tested = list(candidates.keys())
+            
+            # Para cada índice, determinar qual k é o melhor
+            votes = []
+            
+            # Davies-Bouldin: menor é melhor
             dbs = [candidates[k]['db'] for k in ks_tested]
-            chs = [candidates[k]['ch'] for k in ks_tested]
-            dns = [candidates[k]['dunn'] for k in ks_tested]
-
-            # Votos
             k_best_db = ks_tested[np.argmin(dbs)]
+            votes.append(k_best_db)
+            
+            # Calinski-Harabasz: maior é melhor
+            chs = [candidates[k]['ch'] for k in ks_tested]
             k_best_ch = ks_tested[np.argmax(chs)]
+            votes.append(k_best_ch)
+            
+            # Dunn: maior é melhor
+            dns = [candidates[k]['dunn'] for k in ks_tested]
             k_best_dn = ks_tested[np.argmax(dns)]
+            votes.append(k_best_dn)
+            
+            # Silhouette: maior é melhor
+            silhouettes = [candidates[k]['silhouette'] for k in ks_tested]
+            k_best_sil = ks_tested[np.argmax(silhouettes)]
+            votes.append(k_best_sil)
+            
+            # I-Index: maior é melhor
+            i_indices = [candidates[k]['i_index'] for k in ks_tested]
+            k_best_i = ks_tested[np.argmax(i_indices)]
+            votes.append(k_best_i)
+            
+            # Ball-Hall: menor é melhor
+            ball_halls = [candidates[k]['ball_hall'] for k in ks_tested]
+            k_best_bh = ks_tested[np.argmin(ball_halls)]
+            votes.append(k_best_bh)
 
-            votes = [k_best_db, k_best_ch, k_best_dn]
-
-            # Lógica de Votação e Desempate
+            # Escolher o k mais frequente (MODA)
             vote_counts = Counter(votes)
-            most_common = vote_counts.most_common()  # Retorna lista [(k, count), ...]
-
-            # Se houver um vencedor claro (count > 1) ou empate, pegamos o primeiro.
-            # Se houver empate total (1, 1, 1), precisamos de um critério.
-            # Critério: Preferência pelo índice DB (Davies-Bouldin)
-            if vote_counts[k_best_db] == 1 and vote_counts[k_best_ch] == 1 and vote_counts[k_best_dn] == 1:
-                k_opt = k_best_db
-                reason = "Desempate via DB"
-            else:
-                k_opt = most_common[0][0]
-                reason = "Maioria"
-
-            print(f"  Classe {c}: Votos [DB={k_best_db}, CH={k_best_ch}, Dunn={k_best_dn}] -> Escolhido: {k_opt} ({reason})")
+            k_opt = vote_counts.most_common(1)[0][0]  # k com maior frequência
+            
+            # Informação detalhada para debug
+            votes_str = f"DB={k_best_db}, CH={k_best_ch}, Dunn={k_best_dn}, Sil={k_best_sil}, I={k_best_i}, BH={k_best_bh}"
+            freq_str = ", ".join([f"k={k}({count}x)" for k, count in vote_counts.most_common()])
+            print(f"  Classe {c}: Votos [{votes_str}] -> Frequências: [{freq_str}] -> K ótimo: {k_opt}")
 
             # Passo 6 (Corrigido): Recuperar os protótipos do modelo JÁ TREINADO
             # Não fazemos fit() novamente aqui.

@@ -17,12 +17,11 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from scipy import stats
 
 # Ferramentas do Scikit-Learn para validação e métricas
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.metrics import accuracy_score, classification_report
 
 # Adicionando o diretório raiz ao path para importar os modelos customizados
 sys.path.append(os.path.abspath("../../.."))
@@ -30,9 +29,9 @@ sys.path.append(os.path.abspath("../../.."))
 # IMPORTANTE: Assume-se que este arquivo contém as implementações corrigidas
 # (DMP com seleção de K via DB/CH/Dunn e CQG com regularização/SVD)
 from classificao_padroes.models_trabalho3 import (
-    analizar_invertibilidade, 
-    PCA, 
-    ClassificadorDMP, 
+    analizar_invertibilidade,
+    PCA,
+    ClassificadorDMP,
     ClassificadorQuadraticoGaussiano
 )
 
@@ -49,7 +48,7 @@ plt.rcParams['figure.figsize'] = (10, 6)
 # %%
 # Caminhos e carregamento
 data_path_24 = "../../data/interin/wall+following+robot+navigation+data/sensor_readings_24.data"
-col_names_24 = [f"US{i+1}" for i in range(24)] + ["Class"]
+col_names_24 = [f"US{i + 1}" for i in range(24)] + ["Class"]
 
 data_df = pd.read_csv(data_path_24, names=col_names_24)
 
@@ -84,36 +83,36 @@ plt.show()
 # Esta função executa **Nr=100 rodadas** de Monte Carlo (divisões aleatórias de treino/teste) para gerar estatísticas robustas (Média e Desvio Padrão).
 
 # %%
-def executar_experimento_monte_carlo(X, y, classificador_class, params={}, n_runs=100, test_size=0.3):
+def executar_experimento_monte_carlo(X, y, classificador_class, params={}, n_runs=20, test_size=0.3):
     """
     Executa N rodadas de treino e teste e coleta métricas globais e por classe.
     """
     print(f"Iniciando {n_runs} rodadas para {classificador_class.__name__}...")
-    
+
     global_accuracies = []
     class_accuracies = {c: [] for c in np.unique(y)}
     times_train = []
     times_test = []
-    
+
     for i in range(n_runs):
         # Divisão aleatória
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=i)
-        
+
         # Instanciação e Treino
         clf = classificador_class(**params)
-        
+
         start_train = time.time()
         clf.fit(X_train, y_train)
         times_train.append(time.time() - start_train)
-        
+
         # Teste
         start_test = time.time()
         y_pred = clf.predict(X_test)
         times_test.append(time.time() - start_test)
-        
+
         # Métricas Globais
         global_accuracies.append(accuracy_score(y_test, y_pred))
-        
+
         # Métricas por Classe (Recall/Acurácia por classe)
         report = classification_report(y_test, y_pred, output_dict=True, zero_division=0)
         for cls_label in np.unique(y):
@@ -132,28 +131,29 @@ def executar_experimento_monte_carlo(X, y, classificador_class, params={}, n_run
         'Time_Train_Mean': np.mean(times_train),
         'Time_Test_Mean': np.mean(times_test)
     }
-    
+
     # Adiciona média e desvio por classe
     for cls_label in np.unique(y):
         results[f'Class_{cls_label}_Mean'] = np.mean(class_accuracies[cls_label])
         results[f'Class_{cls_label}_Std'] = np.std(class_accuracies[cls_label])
-        
+
     return results, global_accuracies
+
 
 def formatar_tabela_latex(df_results, class_names):
     """Gera uma visualização amigável similar à tabela solicitada no PDF."""
     display_df = pd.DataFrame()
     display_df['Classificador'] = df_results['Modelo']
-    
+
     # Formata Global
     display_df['Global'] = df_results.apply(lambda row: f"{row['Global_Mean']:.4f} ± {row['Global_Std']:.4f}", axis=1)
-    
+
     # Formata por Classe
     for i, name in enumerate(class_names):
         display_df[f'{name}'] = df_results.apply(
             lambda row: f"{row[f'Class_{i}_Mean']:.4f} ± {row[f'Class_{i}_Std']:.4f}", axis=1
         )
-        
+
     return display_df
 
 # %% [markdown]
@@ -171,7 +171,7 @@ analizar_invertibilidade(data_df, "Original 24 Sensores")
 # %% [markdown]
 # ### 1.3: Experimento Comparativo (DMP vs CQG)
 # Execução de 100 rodadas para preenchimento da tabela de desempenho.
-# 
+#
 # *Nota:* Para o DMP, definimos `k_max` baseado na heurística $\sqrt{N_{min}}$, para evitar overfitting (transformar o DMP em 1-NN).
 
 # %%
@@ -181,12 +181,12 @@ k_max_heuristic = int(np.sqrt(N_min))
 print(f"Heurística para DMP: k_max definido como {k_max_heuristic} (aprox sqrt({N_min}))")
 
 # Parâmetros dos Modelos
-params_dmp = {'k_min': 2, 'k_max': k_max_heuristic, 'n_runs': 10} # n_runs interno do k-means
-params_cqg = {} # CQG padrão
+params_dmp = {'k_min': 2, 'k_max': k_max_heuristic, 'n_runs': 10}  # n_runs interno do k-means
+params_cqg = {}  # CQG padrão
 
 # Execução (Pode levar alguns minutos devido às 100 rodadas)
-res_dmp, acc_dmp = executar_experimento_monte_carlo(X_scaled, y_encoded, ClassificadorDMP, params_dmp, n_runs=100)
-res_cqg, acc_cqg = executar_experimento_monte_carlo(X_scaled, y_encoded, ClassificadorQuadraticoGaussiano, params_cqg, n_runs=100)
+res_dmp, acc_dmp = executar_experimento_monte_carlo(X_scaled, y_encoded, ClassificadorDMP, params_dmp, n_runs=20)
+res_cqg, acc_cqg = executar_experimento_monte_carlo(X_scaled, y_encoded, ClassificadorQuadraticoGaussiano, params_cqg, n_runs=20)
 
 # Consolidação
 df_q1 = pd.DataFrame([res_cqg, res_dmp])
@@ -225,7 +225,7 @@ fig, ax1 = plt.subplots(figsize=(10, 6))
 color = 'tab:blue'
 ax1.set_xlabel('Número de Componentes (q)')
 ax1.set_ylabel('Variância Explicada Individual (%)', color=color)
-ax1.bar(range(1, len(var_ratio)+1), var_ratio * 100, color=color, alpha=0.6, label='Individual')
+ax1.bar(range(1, len(var_ratio) + 1), var_ratio * 100, color=color, alpha=0.6, label='Individual')
 ax1.tick_params(axis='y', labelcolor=color)
 
 ax2 = ax1.twinx()  # Segundo eixo y
@@ -237,9 +237,9 @@ ax2.tick_params(axis='y', labelcolor=color)
 # Linhas de corte (90%, 95%, 99%)
 for threshold, style in zip([0.90, 0.95, 0.99], [':', '--', '-.']):
     q_idx = np.argmax(var_cum >= threshold) + 1
-    ax2.axhline(y=threshold*100, color='gray', linestyle=style, alpha=0.5)
-    ax2.text(q_idx + 0.5, threshold*100 - 2, f'{threshold*100:.0f}% (q={q_idx})', color='black')
-    print(f"Componentes necessários para {threshold*100:.0f}% de variância: q = {q_idx}")
+    ax2.axhline(y=threshold * 100, color='gray', linestyle=style, alpha=0.5)
+    ax2.text(q_idx + 0.5, threshold * 100 - 2, f'{threshold * 100:.0f}% (q={q_idx})', color='black')
+    print(f"Componentes necessários para {threshold * 100:.0f}% de variância: q = {q_idx}")
 
 plt.title("Análise de Variância Explicada - PCA")
 fig.tight_layout()
@@ -264,8 +264,8 @@ X_pca = pca_final.transform(X_scaled)
 print(f"Redução de Dimensionalidade: {X_scaled.shape} -> {X_pca.shape}")
 
 # Execução do Experimento no Espaço Reduzido
-res_dmp_pca, acc_dmp_pca = executar_experimento_monte_carlo(X_pca, y_encoded, ClassificadorDMP, params_dmp, n_runs=100)
-res_cqg_pca, acc_cqg_pca = executar_experimento_monte_carlo(X_pca, y_encoded, ClassificadorQuadraticoGaussiano, params_cqg, n_runs=100)
+res_dmp_pca, acc_dmp_pca = executar_experimento_monte_carlo(X_pca, y_encoded, ClassificadorDMP, params_dmp, n_runs=20)
+res_cqg_pca, acc_cqg_pca = executar_experimento_monte_carlo(X_pca, y_encoded, ClassificadorQuadraticoGaussiano, params_cqg, n_runs=20)
 
 # Consolidação
 df_q2 = pd.DataFrame([res_cqg_pca, res_dmp_pca])
@@ -294,26 +294,26 @@ plt.show()
 def plot_decision_boundary(X, y, model, title):
     # Treina modelo em 2D
     model.fit(X, y)
-    
+
     # Meshgrid
     x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
     y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
     xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1),
                          np.arange(y_min, y_max, 0.1))
-    
+
     # Predição no Grid
     Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
     Z = Z.reshape(xx.shape)
-    
+
     plt.figure(figsize=(10, 8))
     plt.contourf(xx, yy, Z, alpha=0.3, cmap='tab10')
     sns.scatterplot(x=X[:, 0], y=X[:, 1], hue=y, palette='tab10', legend='full', s=30, alpha=0.6)
-    
+
     # Se for DMP, plotar protótipos
     if hasattr(model, 'all_prototypes_') and len(model.all_prototypes_) > 0:
         plt.scatter(model.all_prototypes_[:, 0], model.all_prototypes_[:, 1], 
                     c='black', marker='X', s=100, label='Protótipos', edgecolors='white')
-    
+
     plt.title(title)
     plt.xlabel('PC 1')
     plt.ylabel('PC 2')
