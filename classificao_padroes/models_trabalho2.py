@@ -12,15 +12,15 @@ def mcovar1(X: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarry: Matriz de covariância de dimensões (p, p).
     """
-    p, N = np.shape(X) # atributos x amostras
-    soma = np.zeros((p, p)) # p x p 
-    m = np.mean(X, 1) # media de cada atributo
+    p, N = np.shape(X)  # atributos x amostras
+    soma = np.zeros((p, p))  # p x p
+    m = np.mean(X, 1)  # media de cada atributo
 
     # Para cada amostra:
     for j in range(0, N):
-        aux = X[:, j] - m # subtrai a media de cada atributo
-        soma += np.outer(aux, aux) # Adiciona os produto do desvio
-    return soma / N # Retorna a media
+        aux = X[:, j] - m  # subtrai a media de cada atributo
+        soma += np.outer(aux, aux)  # Adiciona os produto do desvio
+    return soma / N  # Retorna a media
 
 
 def mcovar2(X: np.ndarray) -> np.ndarray:

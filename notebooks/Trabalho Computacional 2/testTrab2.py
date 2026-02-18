@@ -77,12 +77,12 @@ def run_benchmark(data, n_rounds=100):
     """Executa o benchmark e retorna listas de tempos."""
     methods = ['mcovar1', 'mcovar2', 'mcovar3', 'mcovar4', 'NumPy Cov']
     results = {m: [] for m in methods}
-    
+
     # Dados transpostos para os métodos mcovar (esperam (p, N))
     data_T = data.T
-    
+
     for _ in range(n_rounds):
-        
+
         # mcovar1 (Loop)
         start = time.perf_counter()
         mcovar1(data_T)
