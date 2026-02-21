@@ -311,8 +311,12 @@ def plot_decision_boundary(X, y, model, title):
 
     # Se for DMP, plotar protótipos
     if hasattr(model, 'all_prototypes_') and len(model.all_prototypes_) > 0:
-        plt.scatter(model.all_prototypes_[:, 0], model.all_prototypes_[:, 1], 
-                    c='black', marker='X', s=100, label='Protótipos', edgecolors='white')
+        prototypes = model.all_prototypes_
+        prototype_labels = model.all_labels_
+        colors = plt.cm.tab10(prototype_labels)
+        plt.scatter(prototypes[:, 0], prototypes[:, 1], 
+                    c=colors, marker='X', s=100, label='Protótipos', edgecolors='white', linewidths=2)
+
 
     plt.title(title)
     plt.xlabel('PC 1')
@@ -332,3 +336,4 @@ plot_decision_boundary(X_2d, y_encoded, dmp_2d, "Superfície de Decisão DMP (Pr
 # Visualização CQG 2D
 cqg_2d = ClassificadorQuadraticoGaussiano()
 plot_decision_boundary(X_2d, y_encoded, cqg_2d, "Superfície de Decisão CQG (Projeção 2D)")
+# %%
