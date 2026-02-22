@@ -1,12 +1,12 @@
-Generating the docs
+Gerando a Documentação
 ----------
 
-Use [mkdocs](http://www.mkdocs.org/) structure to update the documentation. 
+Este projeto utiliza o [mkdocs](http://www.mkdocs.org/) para a documentação técnica.
 
-Build locally with:
+Para construir localmente:
 
-    mkdocs build
+    uv run mkdocs build
 
-Serve locally with:
+Para servir localmente (com recarregamento automático):
 
-    mkdocs serve
+    uv run mkdocs serve
