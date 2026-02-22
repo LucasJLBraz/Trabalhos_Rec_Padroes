@@ -1,4 +1,7 @@
 # Reconhecimento de Padrões - PPGETI
+Aluno: Lucas José Lemos Braz
+
+---
 
 Este repositório contém a implementação dos algoritmos, modelos e experimentos referentes aos três Trabalhos Computacionais (TC) da disciplina de Reconhecimento de Padrões do Programa de Pós-Graduação em Engenharia de Teleinformática (PPGETI).
 
@@ -8,23 +11,16 @@ O objetivo deste projeto é consolidar as implementações de modelos de classif
 
 ## Organização do Projeto
 
-```text
-├── LICENSE            <- Licença de código aberto (se aplicável).
-├── Makefile           <- Makefile com comandos de conveniência como `make data`.
+```text.
 ├── README.md          <- Este arquivo, contendo a visão geral do projeto.
 ├── pyproject.toml     <- Arquivo de configuração do projeto e dependências (gerenciado pelo uv).
 ├── uv.lock            <- Arquivo de trava de dependências do uv.
 ├── setup.cfg          <- Arquivo de configuração para ferramentas de linting.
 │
 ├── classificao_padroes <- Código-fonte do projeto (módulo Python).
-│   ├── modeling/      <- Scripts para treinamento e predição.
-│   ├── config.py      <- Variáveis de configuração e caminhos.
-│   ├── dataset.py     <- Scripts para download ou geração de dados.
-│   ├── features.py    <- Código para engenharia de atributos.
 │   ├── models_trabalho1.py <- Modelos específicos do Trabalho 1 (KNN, DMC, etc).
 │   ├── models_trabalho2.py <- Modelos específicos do Trabalho 2.
 │   ├── models_trabalho3.py <- Modelos específicos do Trabalho 3.
-│   └── plots.py       <- Código para geração de visualizações.
 │
 ├── data               <- Dados utilizados nos experimentos.
 │   ├── interim/       <- Dados intermediários transformados.
@@ -35,8 +31,6 @@ O objetivo deste projeto é consolidar as implementações de modelos de classif
 │   ├── relatorio_tc2/ <- Relatório em LaTeX do Trabalho 2.
 │   ├── relatorio_tc3/ <- Relatório em LaTeX do Trabalho 3.
 │   └── mkdocs.yml     <- Configuração para documentação via MkDocs.
-│
-├── models             <- Modelos treinados e serializados ou sumários.
 │
 ├── notebooks          <- Notebooks Jupyter com os experimentos práticos.
 │   ├── Trabalho Computacional 1/ <- Experimentos do Trabalho 1.
@@ -79,17 +73,9 @@ Ou, se preferir o Jupyter Notebook clássico:
 uv run jupyter notebook
 ```
 
-### Executando Scripts
-
-Você também pode executar scripts diretamente através do ambiente gerenciado pelo `uv`:
-
-```bash
-uv run python classificao_padroes/modeling/train.py
-```
-
 ## Relatórios
 
-Os relatórios técnicos de cada trabalho estão localizados na pasta `docs/` em formato LaTeX. Para compilá-los, utilize seu editor LaTeX de preferência ou ferramentas de linha de comando como o `pdflatex`.
+Os relatórios técnicos de cada trabalho estão localizados na pasta `docs/` em formato LaTeX.
 
 ## Referências
 
