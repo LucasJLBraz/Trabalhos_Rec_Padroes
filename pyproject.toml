@@ -5,9 +5,9 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "classificao_padroes"
 version = "0.0.1"
-description = "Implementa\u00e7\u00e3o do Trabalho Computacional 1 de Reconhecimento de Padr\u00f5es PPGETI"
+description = "Implementação dos Trabalhos Computacionais 1, 2 e 3 de Reconhecimento de Padrões PPGETI"
 authors = [
-  { name = "Lucas Jos\u00e9 Lemos Braz" },
+  { name = "Lucas José Lemos Braz" },
 ]
 license = { file = "LICENSE" }
 readme = "README.md"
@@ -30,15 +30,11 @@ dependencies = [
     "pip",
     "python-dotenv",
     "scikit-learn",
-<<<<<<< HEAD
     "seaborn>=0.13.2",
+    "tabulate>=0.9.0",
     "tqdm",
     "typer",
     "ucimlrepo>=0.0.7",
-=======
-    "tqdm",
-    "typer",
->>>>>>> origin/main
 ]
 requires-python = "~=3.12.0"
 

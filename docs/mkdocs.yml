@@ -1,16 +1,10 @@
-site_name: Trabalho1_Rec_Padroes
-<<<<<<< HEAD
+site_name: Reconhecimento de Padrões - PPGETI
 site_author: Lucas José Lemos Braz
 
 nav:
-  - Home: index.md
-  - API Reference: reference.md
+  - Início: index.md
+  - Referência da API: reference.md
 
 plugins:
   - search
   - mkdocstrings
-=======
-# 
-site_author: Lucas José Lemos Braz
-# 
->>>>>>> origin/main

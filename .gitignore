@@ -5,7 +5,7 @@ __pycache__/
 =======
 >>>>>>> origin/main
 # Data
-/data/
+# /data/
 
 # Mac OS-specific storage files
 .DS_Store
@@ -290,3 +290,4 @@ __marimo__/
 =======
 .pypirc
 >>>>>>> origin/main
+.idea/
