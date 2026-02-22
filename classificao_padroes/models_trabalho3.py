@@ -39,7 +39,7 @@ class ClassificadorQuadraticoGaussiano:
     ----------
     classes_ : dict
         Array contendo os rótulos únicos das classes encontradas durante o treinamento.
-    cov_matrices_ : dict
+    matrizes_cov : dict
         Dicionário armazenando a matriz de covariância para cada classe.
     medias_ : dict
         Dicionário armazenando o vetor de médias para cada classe.
@@ -81,7 +81,7 @@ class ClassificadorQuadraticoGaussiano:
 
     def __init__(self):
         self.classes_ = {}
-        self.cov_matrices_ = {}
+        self.matrizes_cov = {}
         self.medias_ = {}
         self.priors_ = {}
         self.distancias = {}
@@ -94,13 +94,13 @@ class ClassificadorQuadraticoGaussiano:
             X_c = X[y == c]
             self.priors_[c] = X_c.shape[0] / n_samples
             self.medias_[c] = np.mean(X_c, axis=0)
-            self.cov_matrices_[c] = mcovar4(X_c.T)
+            self.matrizes_cov[c] = mcovar4(X_c.T)
 
     def predict(self, X):
         scores = []
         for c in self.classes_:
             diff = X - self.medias_[c]
-            cov = self.cov_matrices_[c]
+            cov = self.matrizes_cov[c]
 
             # TRATAMENTO DE ERRO/REGULARIZAÇÃO
             try:
@@ -180,16 +180,16 @@ def i_index(X, labels):
     """
     unique_labels = np.unique(labels)
     k = len(unique_labels)
-    
+
     if k < 2:
         return 0
-    
+
     # Centroide global
     global_centroid = np.mean(X, axis=0)
-    
+
     # E_1: soma das distâncias ao centroide global
     E_1 = np.sum(np.linalg.norm(X - global_centroid, axis=1))
-    
+
     # E_k: soma das distâncias intra-cluster
     E_k = 0
     centroids = []
@@ -201,19 +201,19 @@ def i_index(X, labels):
         centroid = np.mean(cluster_points, axis=0)
         centroids.append(centroid)
         E_k += np.sum(np.linalg.norm(cluster_points - centroid, axis=1))
-    
+
     centroids = np.array(centroids)
-    
+
     if E_k == 0 or len(centroids) < 2:
         return 0
-    
+
     # D_k: máxima distância entre centroides
     centroid_distances = euclidean_distances(centroids)
     D_k = np.max(centroid_distances)
-    
+
     # Índice I
     I = (1.0 / k) * (E_1 / E_k) * D_k
-    
+
     return I
 
 
@@ -224,10 +224,10 @@ def ball_hall_index(X, labels):
     """
     unique_labels = np.unique(labels)
     k = len(unique_labels)
-    
+
     if k < 2:
         return np.inf
-    
+
     total_dispersion = 0
     for label in unique_labels:
         mask = (labels == label)
@@ -237,14 +237,13 @@ def ball_hall_index(X, labels):
         centroid = np.mean(cluster_points, axis=0)
         dispersion = np.sum(np.linalg.norm(cluster_points - centroid, axis=1) ** 2)
         total_dispersion += dispersion
-    
+
     return total_dispersion / k
 
 
 class ClassificadorDMP:
     """
-    Classificador de Distância Mínima ao Protótipo (DMP) com Seleção Automática de K.
-    Autor: Adaptação para RecPad-PPGETI
+    Classificador de Distância Mínima ao Protótipo (DMP).
     """
 
     def __init__(self, k_min=2, k_max=10, n_runs=20):
@@ -252,45 +251,45 @@ class ClassificadorDMP:
         Args:
             k_min (int): Mínimo de clusters a testar (>=2 para índices de validação).
             k_max (int): Máximo de clusters a testar.
-            n_runs (int): Número de reinicializações do K-Means (Passo 2/3).
+            n_runs (int): Número de rodadas do K-Means (Passo 2/3).
         """
         self.k_min = max(2, k_min)  # Indices precisam de pelo menos 2 clusters
         self.k_max = k_max
         self.n_runs = n_runs
-        self.all_prototypes_ = []
-        self.all_labels_ = []
+        self.prototipos_ = []
+        self.labels_ = []
 
     def fit(self, X, y):
         self.classes_ = np.unique(y)
-        self.all_prototypes_ = []
-        self.all_labels_ = []
+        self.prototipos_ = []
+        self.labels_ = []
 
         print(f"Treinando DMP Multi-Protótipo. Classes: {self.classes_}")
 
         # Passo 1: Separar os dados por classe
         for c in self.classes_:
             X_c = X[y == c]
-            n_samples = X_c.shape[0]
+            n_amostras = X_c.shape[0]
 
             # Proteção: Não podemos ter mais clusters que amostras
             # E precisamos de pelo menos k_min amostras
-            limit_k = min(self.k_max, n_samples - 1)
+            limite_k = min(self.k_max, n_amostras - 1)
 
-            if limit_k < self.k_min:
-                print(f"  [Aviso] Classe {c}: Amostras insuficientes ({n_samples}) para validação de clusters.")
+            if limite_k < self.k_min:
+                print(f"  [Aviso] Classe {c}: Amostras insuficientes ({n_amostras}) para validação de clusters.")
                 print("          Usando média simples (1 protótipo).")
-                self.all_prototypes_.append(np.mean(X_c, axis=0))
-                self.all_labels_.append(c)
+                self.prototipos_.append(np.mean(X_c, axis=0))
+                self.labels_.append(c)
                 continue
 
             # Dicionário para "cachear" os modelos vencedores de cada K
             # Estrutura: {k: {'model': KMeansObject, 'db': float, 'ch': float, 'dn': float, ...}}
-            candidates = {}
+            candidatos = {}
 
             # Loop para variar K
-            for k in range(self.k_min, limit_k + 1):
+            for k in range(self.k_min, limite_k + 1):
                 best_inertia = np.inf
-                best_model_k = None
+                melhorModeloK = None
 
                 # Passo 2 e 3: Rodar K-Means Nr vezes e escolher o de menor inércia (SSD)
                 # Isso garante que estamos avaliando o "melhor" K-Means possível para este k
@@ -300,14 +299,14 @@ class ClassificadorDMP:
 
                     if kmeans.inertia_ < best_inertia:
                         best_inertia = kmeans.inertia_
-                        best_model_k = kmeans  # Guarda o objeto treinado
+                        melhorModeloK = kmeans  # Guarda o objeto treinado
 
                 # Passo 4: Calcular índices de validação para o modelo vencedor deste K
-                labels = best_model_k.labels_  # type: ignore
+                labels = melhorModeloK.labels_  # type: ignore
 
                 # Armazena tudo no dicionário de candidatos
-                candidates[k] = {
-                    'model': best_model_k,  # O IMPORTANTE ESTÁ AQUI: Guardamos o modelo!
+                candidatos[k] = {
+                    'model': melhorModeloK,
                     'db': davies_bouldin_score(X_c, labels),         # Menor é melhor
                     'ch': calinski_harabasz_score(X_c, labels),      # Maior é melhor
                     'dunn': dunn_index(X_c, labels),                 # Maior é melhor
@@ -318,77 +317,76 @@ class ClassificadorDMP:
 
             # Passo 5: Seleção do K ótimo baseado na MODA (k mais frequente)
             # Extrair listas para buscar min/max de cada índice
-            ks_tested = list(candidates.keys())
-            
+            ks_tested = list(candidatos.keys())
+
             # Para cada índice, determinar qual k é o melhor
-            votes = []
-            
+            votos = []
+
             # Davies-Bouldin: menor é melhor
-            dbs = [candidates[k]['db'] for k in ks_tested]
+            dbs = [candidatos[k]['db'] for k in ks_tested]
             k_best_db = ks_tested[np.argmin(dbs)]
-            votes.append(k_best_db)
-            
+            votos.append(k_best_db)
+
             # Calinski-Harabasz: maior é melhor
-            chs = [candidates[k]['ch'] for k in ks_tested]
+            chs = [candidatos[k]['ch'] for k in ks_tested]
             k_best_ch = ks_tested[np.argmax(chs)]
-            votes.append(k_best_ch)
-            
+            votos.append(k_best_ch)
+
             # Dunn: maior é melhor
-            dns = [candidates[k]['dunn'] for k in ks_tested]
+            dns = [candidatos[k]['dunn'] for k in ks_tested]
             k_best_dn = ks_tested[np.argmax(dns)]
-            votes.append(k_best_dn)
-            
+            votos.append(k_best_dn)
+
             # Silhouette: maior é melhor
-            silhouettes = [candidates[k]['silhouette'] for k in ks_tested]
+            silhouettes = [candidatos[k]['silhouette'] for k in ks_tested]
             k_best_sil = ks_tested[np.argmax(silhouettes)]
-            votes.append(k_best_sil)
-            
+            votos.append(k_best_sil)
+
             # I-Index: maior é melhor
-            i_indices = [candidates[k]['i_index'] for k in ks_tested]
+            i_indices = [candidatos[k]['i_index'] for k in ks_tested]
             k_best_i = ks_tested[np.argmax(i_indices)]
-            votes.append(k_best_i)
-            
+            votos.append(k_best_i)
+
             # Ball-Hall: menor é melhor
-            ball_halls = [candidates[k]['ball_hall'] for k in ks_tested]
+            ball_halls = [candidatos[k]['ball_hall'] for k in ks_tested]
             k_best_bh = ks_tested[np.argmin(ball_halls)]
-            votes.append(k_best_bh)
+            votos.append(k_best_bh)
 
             # Escolher o k mais frequente (MODA)
-            vote_counts = Counter(votes)
-            k_opt = vote_counts.most_common(1)[0][0]  # k com maior frequência
-            
+            qtd_votos = Counter(votos)
+            k_opt = qtd_votos.most_common(1)[0][0]  # k com maior frequência
+
             # Informação detalhada para debug
-            votes_str = f"DB={k_best_db}, CH={k_best_ch}, Dunn={k_best_dn}, Sil={k_best_sil}, I={k_best_i}, BH={k_best_bh}"
-            freq_str = ", ".join([f"k={k}({count}x)" for k, count in vote_counts.most_common()])
-            print(f"  Classe {c}: Votos [{votes_str}] -> Frequências: [{freq_str}] -> K ótimo: {k_opt}")
+            votos_str = f"DB={k_best_db}, CH={k_best_ch}, Dunn={k_best_dn}, Sil={k_best_sil}, I={k_best_i}, BH={k_best_bh}"
+            freq_str = ", ".join([f"k={k}({count}x)" for k, count in qtd_votos.most_common()])
+            print(f"  Classe {c}: Votos [{votos_str}] -> Frequências: [{freq_str}] -> K ótimo: {k_opt}")
 
-            # Passo 6 (Corrigido): Recuperar os protótipos do modelo JÁ TREINADO
-            # Não fazemos fit() novamente aqui.
-            winner_model = candidates[k_opt]['model']
+            # Passo 6: Recuperar os protótipos do modelo JÁ TREINADO
+            modelo_vencedor = candidatos[k_opt]['model']
 
-            for centroide in winner_model.cluster_centers_:
-                self.all_prototypes_.append(centroide)
-                self.all_labels_.append(c)
+            for centroide in modelo_vencedor.cluster_centers_:
+                self.prototipos_.append(centroide)
+                self.labels_.append(c)
 
         # Converter para numpy array para eficiência no predict
-        self.all_prototypes_ = np.array(self.all_prototypes_)
-        self.all_labels_ = np.array(self.all_labels_)
+        self.prototipos_ = np.array(self.prototipos_)
+        self.labels_ = np.array(self.labels_)
 
     def predict(self, X):
         """
         Classifica cada amostra em X com base no protótipo mais próximo (Euclidiana).
         """
-        if len(self.all_prototypes_) == 0:
+        if len(self.prototipos_) == 0:
             raise ValueError("O modelo não foi treinado ou não gerou protótipos.")
 
         # Calcula distância de todas as amostras para todos os protótipos (Matriz N x N_prototypes)
-        dists = cdist(X, self.all_prototypes_, metric='euclidean')
+        dists = cdist(X, self.prototipos_, metric='euclidean')
 
         # Índice do protótipo com menor distância
-        nearest_proto_idx = np.argmin(dists, axis=1)
+        idx_proto_proximo = np.argmin(dists, axis=1)
 
         # Recupera o rótulo da classe associado àquele protótipo
-        return self.all_labels_[nearest_proto_idx]
+        return self.labels_[idx_proto_proximo]
 
 
 class PCA:
@@ -396,30 +394,30 @@ class PCA:
     Principal Component Analysis (PCA) via SVD da Matriz de Covariância.
     """
 
-    def __init__(self, n_components=None):
+    def __init__(self, n_componentes=None):
         """
         n_components:
             - Se float (0 < n < 1): Seleciona componentes para explicar 'n' % da variância.
             - Se int (n >= 1): Seleciona exatamente 'n' componentes.
             - Se None: Mantém todos os componentes.
         """
-        self.n_components = n_components
-        self.components_ = None      # Matriz de projeção (W)
-        self.mean_ = None            # Média para centralização
-        self.explained_variance_ = None       # Autovalores (lambda)
-        self.explained_variance_ratio_ = None  # Variância explicada (%)
+        self.n_componentes = n_componentes
+        self.componentes_ = None      # Matriz de projeção (W)
+        self.media_ = None            # Média para centralização
+        self.variancia_explicada_ = None       # Autovalores (lambda)
+        self.razao_variancia_explicada_ = None  # Variância explicada (%)
 
     def fit(self, X):
         # Passo 1: Calcular a média de cada atributo
-        self.mean_ = np.mean(X, axis=0)
+        self.media_ = np.mean(X, axis=0)
 
         # Passo 2: Centralizar os dados (X - mu)
-        X_centered = X - self.mean_
+        X_centralizado = X - self.media_
 
         # Passo 3: Estimar a matriz de covariância
         # Nota: Usando rowvar=False porque X é (N_amostras, N_features)
         # Se você tiver sua função mcovar4, substitua aqui: CovX = mcovar4(X_centered.T)
-        CovX = np.cov(X_centered, rowvar=False)
+        CovX = np.cov(X_centralizado, rowvar=False)
 
         # Passo 4: Decomposição SVD na Matriz de Covariância
         # Na covariância (simétrica), SVD e Eigendecomposition são equivalentes.
@@ -429,22 +427,22 @@ class PCA:
         U, S, Vt = np.linalg.svd(CovX)
 
         # S já vem ordenado decrescentemente no numpy.linalg.svd
-        self.explained_variance_ = S
-        self.explained_variance_ratio_ = S / np.sum(S)
+        self.variancia_explicada_ = S
+        self.razao_variancia_explicada_ = S / np.sum(S)
 
         # Passo 5: Determinar o número de componentes (q)
-        if self.n_components is None:
-            n_components_select = X.shape[1]
-        elif isinstance(self.n_components, float) and 0 < self.n_components < 1:
+        if self.n_componentes is None:
+            n_componentes_selec = X.shape[1]
+        elif isinstance(self.n_componentes, float) and 0 < self.n_componentes < 1:
             # Seleciona q tal que a variância acumulada atinja o limiar (ex: 0.95)
-            cumulative_variance = np.cumsum(self.explained_variance_ratio_)
-            n_components_select = np.searchsorted(cumulative_variance, self.n_components) + 1
+            variancia_cum = np.cumsum(self.razao_variancia_explicada_)
+            n_componentes_selec = np.searchsorted(variancia_cum, self.n_componentes) + 1
         else:
-            n_components_select = int(self.n_components)
+            n_componentes_selec = int(self.n_componentes)
 
         # Armazena apenas os q primeiros autovetores (colunas de U)
         # Estes formam a matriz de transformação W (p x q)
-        self.components_ = U[:, :n_components_select]
+        self.componentes_ = U[:, :n_componentes_selec]
 
         return self
 
@@ -453,15 +451,15 @@ class PCA:
         Projeta os dados originais no novo espaço de características reduzido.
         Z = (X - mu) @ W
         """
-        if self.mean_ is None or self.components_ is None:
+        if self.media_ is None or self.componentes_ is None:
             raise RuntimeError("O modelo PCA não foi treinado (fit).")
 
         # 1. Centralizar os dados de teste usando a MÉDIA DO TREINO
-        X_centered = X - self.mean_
+        X_centralizado = X - self.media_
 
         # 2. Projeção Linear
         # (N, p) @ (p, q) -> (N, q)
-        return X_centered @ self.components_
+        return X_centralizado @ self.componentes_
 
     def inverse_transform(self, Z):
         """
@@ -469,4 +467,4 @@ class PCA:
         X_rec = Z @ W.T + mu
         """
         # (N, q) @ (q, p) -> (N, p)
-        return (Z @ self.components_.T) + self.mean_  # type: ignore
+        return (Z @ self.componentes_.T) + self.media_  # type: ignore
