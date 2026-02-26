@@ -1,0 +1,97 @@
+\section{Resultados}
+\label{chap:resultados}
+
+\subsection{Análise Exploratória e de Normalidade}
+A análise das densidades condicionais (Figura~\ref{fig:densidades}) revelou sobreposições significativas entre as classes Hérnia e Normal para a maioria dos atributos, enquanto a classe Espondilolistese apresentou-se mais separada, especialmente no atributo \textit{degree\_spondylolisthesis}.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.8\textwidth]{figuras/densidades_condicionais.png}
+\caption{Densidades condicionais dos atributos por classe (p(x|w)). }
+\label{fig:densidades}
+\end{figure}
+
+O teste de Shapiro-Wilk (Tabela~\ref{tab:shapiro}) e os gráficos Q-Q (Figura~\ref{fig:qqplots}) confirmaram que nenhum dos atributos segue uma distribuição normal ($\alpha=0.05$), o que justifica a exploração de métodos não paramétricos como o KNN e a versão robusta do MDC.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.8\textwidth]{figuras/qqplots.png}
+\caption{Gráficos Q-Q para avaliação de normalidade global. }
+\label{fig:qqplots}
+\end{figure}
+
+\begin{table}[h!]
+\centering
+\caption{Resultados do teste de normalidade Shapiro-Wilk.}
+\label{tab:shapiro}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Atributo} & \textbf{Estatística W} & \textbf{p-valor} & \textbf{H0 (Normal)} \\
+\midrule
+pelvic\_incidence & 0.971 & $7.13 \times 10^{-6}$ & Rejeitada \\
+pelvic\_tilt & 0.966 & $1.32 \times 10^{-6}$ & Rejeitada \\
+lumbar\_lordosis\_angle & 0.972 & $9.22 \times 10^{-6}$ & Rejeitada \\
+sacral\_slope & 0.964 & $5.88 \times 10^{-7}$ & Rejeitada \\
+pelvic\_radius & 0.989 & $1.66 \times 10^{-2}$ & Rejeitada \\
+degree\_spondylolisthesis & 0.697 & $2.90 \times 10^{-23}$ & Rejeitada \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Desempenho Geral dos Classificadores}
+A Tabela~\ref{tab:summary_80_20} apresenta o desempenho médio para a divisão de 80\% treino e 20\% teste ao longo de 100 execuções. O KNN com ordem de Minkowski $m=2.0$ (Euclidiana) e $m=1.5$ obtiveram os melhores desempenhos médios nesta configuração.
+
+\begin{table}[h!]
+\centering
+\caption{Acurácia média e desvio padrão para a divisão 80/20 (100 rodadas).}
+\label{tab:summary_80_20}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Classificador} & \textbf{Acurácia Média} & \textbf{Desvio Padrão} & \textbf{Tempo Treino (ms)} \\
+\midrule
+KNN ($m=2.00$) & 0.8210 & 0.0422 & 0.0023 \\
+KNN ($m=1.50$) & 0.8161 & 0.0416 & 0.0023 \\
+MDC Robusto    & 0.7861 & 0.0450 & 0.1398 \\
+MDC            & 0.7629 & 0.0464 & 0.0680 \\
+MAXCO          & 0.7221 & 0.0600 & 0.0570 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Observa-se que o MDC Robusto (mediana) superou o MDC tradicional (média), sugerindo que a presença de distribuições não-normais e possíveis \textit{outliers} afeta negativamente o cálculo dos centróides via média. O MAXCO apresentou o menor desempenho, indicando que a correlação de cosseno pode não ser a métrica mais adequada para este espaço de atributos biomecânicos.
+
+\subsection{Efeito da Proporção de Treinamento}
+A acurácia média tendeu a aumentar conforme maior volume de dados foi disponibilizado para treinamento, como demonstrado na Tabela~\ref{tab:split_comparison} e na Figura~\ref{fig:split_plot}. O KNN manteve-se consistentemente como o melhor classificador em todas as divisões.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.8\textwidth]{figuras/acuracia_vs_split.png}
+\caption{Acurácia média vs. razão de treinamento para os diferentes classificadores. }
+\label{fig:split_plot}
+\end{figure}
+
+\begin{table}[h!]
+\centering
+\caption{Comparativo da acurácia média por porcentagem de treinamento.}
+\label{tab:split_comparison}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Classificador} & \textbf{20\% Treino} & \textbf{30\% Treino} & \textbf{50\% Treino} & \textbf{70\% Treino} & \textbf{80\% Treino} \\
+\midrule
+KNN ($m=2.00$) & 0.7845 & 0.7949 & 0.8065 & 0.8121 & 0.8210 \\
+KNN ($m=1.00$) & 0.7787 & 0.7864 & 0.7976 & 0.8056 & 0.8158 \\
+MDC Robusto    & 0.7729 & 0.7773 & 0.7855 & 0.7866 & 0.7861 \\
+MAXCO          & 0.7130 & 0.7192 & 0.7234 & 0.7220 & 0.7221 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Matriz de Confusão e Relatório de Classificação}
+Para a melhor rodada do KNN na divisão 80/20, obteve-se acurácia superior a 0.90 em alguns casos. A análise das matrizes de confusão (Figura~\ref{fig:confusion_matrix}) revelou que o modelo é altamente eficaz na identificação de Espondilolistese, mas apresenta uma confusão sistemática entre as classes Hérnia e Normal, que possuem centróides mais próximos no espaço de atributos.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.8\textwidth]{figuras/matriz_confusao_knn.png}
+\caption{Matrizes de confusão para o melhor e pior caso do classificador KNN. }
+\label{fig:confusion_matrix}
+\end{figure}

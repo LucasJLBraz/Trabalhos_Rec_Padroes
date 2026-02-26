@@ -1,0 +1,13 @@
+\section{Conclusão}
+\label{chap:conclusao}
+
+Este Terceiro Trabalho Computacional permitiu uma análise profunda da integração entre Redução de Dimensionalidade e modelos de classificação de variada complexidade. A aplicação da técnica de PCA via SVD demonstrou ser uma etapa crucial no processamento de dados de sensores redundantes, permitindo a retenção da informação relevante ($95\%$ da variância) com uma fração das dimensões originais. Esta simplificação do espaço de atributos não apenas reduziu a complexidade computacional, mas também atenuou o mal-condicionamento numérico inerente a dados correlacionados, beneficiando diretamente o Classificador Quadrático Gaussiano (CQG).
+
+Os principais achados deste trabalho foram:
+\begin{enumerate}
+    \item 	extbf{Eficácia do PCA}: O "joelho" da curva de variância explicada confirmou a alta redundância entre sensores adjacentes no dataset do robô 	extit{Wall-Following}, validando o PCA como uma ferramenta poderosa de pré-processamento.
+    \item 	extbf{Robustez do DMP Multi-Protótipo}: A estratégia de utilizar o K-médias com votação de múltiplos índices de validação de cluster permitiu que o DMP superasse as limitações de modelos baseados em um único protótipo por classe, capturando a multimodalidade das amostras de navegação com sucesso.
+    \item 	extbf{Trade-off entre Dimensionalidade e Acurácia}: A comparação entre o CQG e o DMP com e sem PCA revelou que, embora a redução de dimensionalidade possa levar a uma ligeira perda de informação, o ganho em estabilidade e generalização muitas vezes compensa este custo, tornando os modelos mais robustos a ruídos e redundâncias.
+\end{enumerate}
+
+Em conclusão, a convergência de técnicas de Redução de Dimensionalidade, Modelos Probabilísticos e Algoritmos de Agrupamento estabelece um arcabouço sólido para o Reconhecimento de Padrões em cenários complexos. Os resultados deste trabalho encerram o ciclo de trabalhos computacionais da disciplina, consolidando o conhecimento prático necessário para o desenvolvimento de sistemas de aprendizado de máquina escaláveis e matematicamente fundamentados.

@@ -1,0 +1,28 @@
+\section{Introdução}
+\label{cap:introducao}
+
+O projeto de sistemas de reconhecimento de padrões enfrenta frequentemente o desafio da "maldição da dimensionalidade", onde o aumento do número de atributos pode degradar o desempenho dos classificadores devido à redundância e ao ruído. Este Terceiro Trabalho Computacional (TC3) aborda esta problemática através da integração de técnicas de Redução de Dimensionalidade, como a Análise de Componentes Principais (PCA), com modelos de classificação probabilísticos e baseados em agrupamento. O objetivo central é avaliar como a projeção dos dados em subespaços de máxima variância impacta a acurácia e a estabilidade numérica de diferentes arquiteturas de decisão.
+
+Para esta análise, utilizamos o Classificador Quadrático Gaussiano (CQG), que modela as classes através de densidades multivariadas, e o Distribuidor de Médias de Protótipos (DMP) Multi-Protótipo. O DMP representa uma abordagem híbrida, onde o algoritmo K-médias é empregado para identificar centros de massa representativos em cada classe, permitindo fronteiras de decisão mais flexíveis do que as obtidas com um único protótipo por classe. O dataset utilizado continua sendo o 	extit{Wall-Following Robot Navigation}, cuja alta dimensionalidade (24 sensores) oferece o cenário ideal para testar a eficácia do PCA na eliminação de redundâncias espaciais.
+
+Seguindo o compromisso com a transparência científica, o desenvolvimento foi realizado de forma modular e versionado em repositório público (\url{https://github.com/LucasJLBraz/Trabalhos_Rec_Padroes}). A estrutura de arquivos específica para o TC3 é apresentada na Tabela~ef{tab:estrutura_arquivos_tc3}.
+
+\begin{table}[h!]
+\centering
+\caption{Organização do repositório para o Trabalho Computacional 3.}
+\label{tab:estrutura_arquivos_tc3}
+esizebox{\columnwidth}{!}{%
+\begin{tabular}{ll}
+	oprule
+	extbf{Caminho} & 	extbf{Descrição} 
+\midrule
+	exttt{classificao\_padroes/models\_trabalho3.py} & Implementações do PCA, CQG e DMP Multi-Protótipo. 
+	exttt{notebooks/Trabalho Computacional 3/} & Notebooks com experimentos, validação de clusters e PCA. 
+\hspace{1em}	exttt{trabalho3\_experimentos.ipynb} & Protocolo experimental com 100 rodadas e análise estatística. 
+	exttt{docs/relatorio\_tc3/} & Códigos-fonte para a geração deste relatório técnico. 
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+A organização modular permite que as transformações de PCA e os classificadores sejam orquestrados de forma fluida nos experimentos, garantindo que as conclusões sobre a influência da dimensionalidade sejam fundamentadas em uma base de código robusta e testada.

@@ -1,0 +1,10 @@
+\section{Conclusão}
+\label{chap:conclusao}
+
+Este Segundo Trabalho Computacional permitiu uma análise rigorosa das implicações práticas da estimação de parâmetros estatísticos em Reconhecimento de Padrões. A comparação sistemática entre as abordagens de laço explícito e vetorização matricial evidenciou que a eficiência computacional não é apenas um detalhe de implementação, mas um requisito fundamental para o escalonamento de algoritmos em conjuntos de dados reais.
+
+Os experimentos demonstraram que a implementação manual baseada na formulação matricial de momentos de segunda ordem (\texttt{mcovar4}) apresentou o melhor desempenho geral em ambos os cenários de sensores (4 e 24), mantendo a precisão numérica com erros residuais da ordem de $10^{-4}$ a $10^{-3}$. Este achado reforça a importância de utilizar operações vetorizadas que aproveitem as rotinas otimizadas de baixo nível das bibliotecas de álgebra linear.
+
+A análise de condicionamento numérico destacou uma limitação intrínseca de dados de sensores redundantes: a singularidade das matrizes de covariância. O número de condicionamento extremamente elevado observado ($\kappa(\mathbf{C}) \approx 10^{20}$) inviabiliza a inversão necessária para classificadores Gaussianos. Validamos que a aplicação da regularização de Tikhonov ($\mathbf{C} + \lambda \mathbf{I}$) é uma solução robusta e computacionalmente barata para restaurar o posto completo e garantir a estabilidade numérica dos modelos probabilísticos subsequentes, como o Classificador de Bayes e Misturas Gaussianas.
+
+Em síntese, a modularização e o rigor matemático na implementação das matrizes de covariância proporcionaram uma compreensão profunda das camadas inferiores dos algoritmos de reconhecimento de padrões. Os resultados estabelecem uma base sólida para a aplicação de classificadores baseados em densidades Gaussianas e técnicas de redução de dimensionalidade em etapas futuras do curso.

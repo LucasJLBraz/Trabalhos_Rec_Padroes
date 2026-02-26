@@ -1,0 +1,83 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% How to use writeLaTeX:
+%
+% You edit the source code here on the left, and the preview on the
+% right shows you the result within a few seconds.
+%
+% Bookmark this page and share the URL with your co-authors. They can
+% edit at the same time!
+%
+% You can upload figures, bibliographies, custom classes and
+% styles using the files menu.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[12pt]{article}
+
+\usepackage{sbc-template}
+\usepackage{soul}
+\usepackage[x11names]{xcolor}
+\usepackage{graphicx,url}
+\usepackage{glossaries}
+\usepackage{csquotes} % Para aspas contextuais (ex: \enquote{})
+% \usepackage{caption} % Add this line in the preamble of your document
+\usepackage{graphicx}
+% \usepackage{subfigure}
+\usepackage{pdfpages}
+\usepackage{multirow}
+\usepackage{array} 
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{ragged2e}
+\urlstyle{tt}
+\def\UrlBreaks{\do\/\do\_} % permite quebra também em underscore
+
+
+% \makeglossaries % Organiza e gera a lista de abreviaturas, simbolos e glossario
+% \makeindex      % Gera o Indice do documento         
+
+\renewcommand{\labelitemi}{\textendash} %Altera os marcadores de itemize para 
+
+
+
+\input{lista-de-abreviaturas-e-siglas}
+
+\usepackage[brazil]{babel}
+\usepackage[utf8]{inputenc}
+
+\sloppy
+
+% \title{Detecção de Fibrilação Atrial em ECGs de Curta Duração via Convergência da Decomposição em Termos de Bloco}
+
+% \title{A Dinâmica da Convergência da Decomposição em Termos de Bloco como Biomarcador para Fibrilação Atrial}
+
+\title{1º Trabalho Computacional}
+\author{Lucas José Lemos Braz - 587388}
+
+\address{Programa de Pós-Graduação em Engenharia de Teleinformática \email{lucas.jlb19@alu.ufc.br} }
+
+
+\begin{document}
+
+\maketitle
+
+\input{2-textuais/1-introducao}
+    %\input{2-textuais/7-justificativa}
+% \input{2-textuais/6-objetivos}
+% \input{2-textuais/2-fundamentacao-teorica}
+% \input{2-textuais/trabalhos-relacionados}
+\input{2-textuais/3-metodologia}
+\input{2-textuais/4-resultados}
+% \input{2-textuais/4-1-discussao}
+\input{2-textuais/5-conclusao}
+% \end{document}
+
+% \bibliographystyle{sbc}
+% \bibliography{sbc-template} % Certifique-se de que o arquivo .bib está correto
+
+\end{document}

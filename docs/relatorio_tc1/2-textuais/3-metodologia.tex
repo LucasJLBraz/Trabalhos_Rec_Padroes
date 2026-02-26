@@ -1,0 +1,28 @@
+\section{Metodologia}
+\label{chap:metodologia}
+
+\subsection{Conjunto de Dados}
+O dataset \textit{Vertebral Column} (ID 212 no repositório UCI) é composto por 310 amostras e 6 atributos biomecânicos: incidência pélvica, inclinação pélvica, ângulo de lordose lombar, inclinação sacral, raio pélvico e grau de espondilolistese. As amostras estão distribuídas em três classes: Hérnia (\textit{Hernia}), Normal e Espondilolistese (\textit{Spondylolisthesis}).
+
+\subsection{Algoritmos Implementados}
+Foram implementados em Python (utilizando apenas \textit{NumPy} para a lógica dos modelos) os seguintes classificadores:
+
+\begin{itemize}
+    \item \textbf{KNN}: Classifica uma nova amostra com base na classe majoritária entre seus $K$ vizinhos mais próximos. Foi fixado $K=1$ e explorada a distância de Minkowski de ordens $m \in \{0.5, 0.67, 1.0, 1.5, 2.0, 2.5\}$, onde $m=1$ corresponde à distância de Manhattan e $m=2$ à distância Euclidiana.
+    \item \textbf{MDC}: Calcula o centróide de cada classe no espaço de atributos. Uma nova amostra é atribuída à classe cujo centróide está a uma distância Euclidiana mínima.
+    \item \textbf{MDC Robusto}: Uma variação do MDC onde o centróide é definido pela mediana dos atributos de cada classe, visando mitigar o efeito de \textit{outliers}.
+    \item \textbf{MAXCO}: Atribui a amostra à classe cujo centróide apresenta a maior correlação de cosseno com a amostra, após a centralização de ambos os vetores pela média.
+\end{itemize}
+
+\subsection{Protocolo Experimental}
+Para garantir a robustez estatística dos resultados, adotou-se o seguinte procedimento:
+\begin{enumerate}
+    \item Os dados foram submetidos a uma codificação de rótulos (\textit{Label Encoding}) para as classes.
+    \item Foram avaliadas cinco proporções de divisão treino/teste: 80/20, 70/30, 50/50, 30/70 e 20/80.
+    \item Para cada divisão, foram realizadas 100 execuções independentes utilizando amostragem aleatória estratificada (\textit{stratified shuffle split}).
+    \item Em cada rodada, os modelos foram treinados e testados, registrando-se a acurácia, o tempo de treinamento e o tempo médio de teste por amostra.
+    \item Foram calculadas a média e o desvio padrão das métricas ao final das 100 rodadas.
+\end{enumerate}
+
+\subsection{Análise Estatística e Visual}
+Realizou-se uma análise exploratória para avaliar a distribuição das variáveis condicionadas às classes e a normalidade dos atributos via teste de Shapiro-Wilk e gráficos Q-Q. Adicionalmente, calculou-se a distância Euclidiana entre os centróides das classes para avaliar a separabilidade linear teórica do problema.
