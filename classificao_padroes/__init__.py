@@ -1,1 +1,1 @@
-from classificao_padroes import config  # noqa: F401
+# from classificao_padroes import config  # noqa: F401
