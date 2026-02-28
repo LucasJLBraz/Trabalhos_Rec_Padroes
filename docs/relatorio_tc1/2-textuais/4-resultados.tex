@@ -40,8 +40,8 @@ degree\_spondylolisthesis & 0.697 & $2.90 \times 10^{-23}$ & Rejeitada \\
 \end{tabular}
 \end{table}
 
-\subsection{Desempenho Geral e Análise de Centróides}
-A Tabela~\ref{tab:summary_80_20} sumariza o desempenho médio para a configuração de 80\% de treinamento. O KNN superou consistentemente os modelos baseados em protótipos únicos (centróides), evidenciando que a fronteira de decisão local do Vizinho Mais Próximo é mais adequada para lidar com a sobreposição observada entre as classes Hérnia e Normal.
+\subsection{Desempenho Geral e Influência da Métrica de Minkowski}
+A Tabela~\ref{tab:summary_80_20} sumariza o desempenho médio para a configuração de 80\% de treinamento, explorando a sensibilidade do KNN à ordem $m$ da distância de Minkowski. Observa-se que os melhores resultados foram obtidos para $m=2.0$ (distância Euclidiana) e $m=1.5$, enquanto ordens fracionárias ($m < 1$) degradaram o desempenho.
 
 \begin{table}[h!]
 \centering
@@ -51,14 +51,20 @@ A Tabela~\ref{tab:summary_80_20} sumariza o desempenho médio para a configuraç
 \toprule
 \textbf{Classificador} & \textbf{Acurácia Média} & \textbf{Desvio Padrão} & \textbf{Tempo Treino (ms)} \\
 \midrule
-KNN ($m=2.00$) & 0.8210 & 0.0422 & 0.0023 \\
-KNN ($m=1.00$) & 0.8158 & 0.0435 & 0.0023 \\
-MDC Robusto    & 0.7861 & 0.0450 & 0.1398 \\
-MDC            & 0.7629 & 0.0464 & 0.0680 \\
-MAXCO          & 0.7221 & 0.0600 & 0.0570 \\
+KNN ($m=2.00$) & 0.7845 & 0.0281 & 0.0026 \\
+KNN ($m=1.50$) & 0.7845 & 0.0297 & 0.0027 \\
+KNN ($m=2.50$) & 0.7837 & 0.0273 & 0.0026 \\
+KNN ($m=1.00$) & 0.7787 & 0.0291 & 0.0028 \\
+MDC Robusto    & 0.7729 & 0.0340 & 0.1260 \\
+KNN ($m=0.67$) & 0.7658 & 0.0272 & 0.0028 \\
+MDC            & 0.7606 & 0.0451 & 0.0657 \\
+KNN ($m=0.50$) & 0.7568 & 0.0282 & 0.0039 \\
+MAXCO          & 0.7130 & 0.0520 & 0.0497 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+A superioridade da distância Euclidiana ($m=2$) em relação à distância de Manhattan ($m=1$) traz implicações importantes sobre a geometria do dataset \textit{Vertebral Column}. Enquanto a distância $m=1$ assume uma estrutura de vizinhança em "quarteirão", com fronteiras de decisão alinhadas aos eixos dos atributos, a métrica Euclidiana ($m=2$) favorece agrupamentos circulares ou esféricos (hipersferas). O fato de $m=2$ apresentar melhor acurácia sugerre que os clusters biomecânicos no espaço de atributos tendem a ser isotrópicos, onde a similaridade é melhor capturada pela magnitude vetorial direta do que por somas de diferenças absolutas coordenadas. Ordens $m < 1$ produzem "esferas unitárias" côncavas que tendem a superestimar pequenas variações dimensionais, resultando em menor robustez frente ao ruído inerente às medições radiográficas.
 
 Para aprofundar a análise do MDC, calculou-se a matriz de distâncias Euclidianas entre os centróides das classes. A Tabela~\ref{tab:mdc_distances} confirma que a classe Espondilolistese é a mais isolada, enquanto Hérnia e Normal possuem uma distância mútua reduzida, o que explica a maior taxa de confusão entre elas reportada nas seções seguintes.
 
@@ -91,6 +97,7 @@ A variação da acurácia em função do volume de treinamento (Tabela~\ref{tab:
 \midrule
 KNN ($m=2.00$) & 0.7845 & 0.7949 & 0.8065 & 0.8121 & 0.8210 \\
 KNN ($m=1.00$) & 0.7787 & 0.7864 & 0.7976 & 0.8056 & 0.8158 \\
+KNN ($m=0.50$) & 0.7568 & 0.7603 & 0.7621 & 0.7654 & 0.7682 \\
 MDC Robusto    & 0.7729 & 0.7773 & 0.7855 & 0.7866 & 0.7861 \\
 MAXCO          & 0.7130 & 0.7192 & 0.7234 & 0.7220 & 0.7221 \\
 \bottomrule

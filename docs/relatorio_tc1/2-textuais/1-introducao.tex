@@ -1,11 +1,11 @@
 \section{Introdução}
 \label{cap:introducao}
 
-Este relatório apresenta os resultados do primeiro Trabalho Computacional (TC1) da disciplina de Reconhecimento de Padrões. O objetivo central é a implementação e avaliação sistemática de classificadores supervisionados fundamentais: o Vizinho Mais Próximo (KNN), o Classificador de Distância Mínima ao Centróide (MDC) e o Classificador de Máxima Correlação (MAXCO). A análise busca compreender como diferentes métricas de similaridade e protocolos experimentais influenciam a capacidade de generalização dos modelos.
+Este relatório apresenta os resultados do primeiro Trabalho Computacional (TC1) da disciplina de Reconhecimento de Padrões. O objetivo central é a implementação e avaliação sistemática de classificadores supervisionados fundamentais: o Vizinho Mais Próximo (KNN), o Classificador de Distância Mínima ao Centróide (MDC) e o Classificador de Máxima Correlação (MAXCO). A análise busca compreender como diferentes métricas de similaridade e dissimilaridade, e protocolos experimentais influenciam a capacidade de generalização dos modelos.
 
 O estudo é aplicado ao conjunto de dados \textit{Vertebral Column} (UCI), que descreve atributos biomecânicos da coluna vertebral para a identificação de patologias como Hérnia de Disco e Espondilolistese. Além da comparação de acurácia, o trabalho investiga a robustez dos modelos frente a variações na proporção de dados de treinamento e a sensibilidade do KNN à ordem da distância de Minkowski.
 
-Para garantir a transparência e a reprodutibilidade científica, todos os algoritmos foram implementados de forma modular em Python, utilizando predominantemente a biblioteca \textit{NumPy}. O código-fonte completo, bem como os notebooks de experimentos e os arquivos de dados, estão hospedados em repositório público no GitHub: \url{https://github.com/LucasJLBraz/Trabalhos_Rec_Padroes}. A organização do projeto para este trabalho é detalhada na Tabela~\ref{tab:estrutura_arquivos_tc1}.
+Para garantir a reprodutibilidade científica, todos os algoritmos foram implementados de forma modular em Python, utilizando predominantemente a biblioteca \textit{NumPy}. O código-fonte completo, bem como os notebooks de experimentos e os arquivos de dados, estão hospedados em repositório público no GitHub: \url{https://github.com/LucasJLBraz/Trabalhos_Rec_Padroes}. A organização do projeto para este trabalho é detalhada na Tabela~\ref{tab:estrutura_arquivos_tc1}.
 
 \begin{table}[h!]
 \centering
@@ -25,5 +25,3 @@ Para garantir a transparência e a reprodutibilidade científica, todos os algor
 \end{tabular}%
 }
 \end{table}
-
-A modularização entre a lógica de negócio (modelos) e a camada de experimentação (notebooks) permite que as análises sejam conduzidas de forma ágil, facilitando o ajuste de hiperparâmetros e a visualização estatística dos resultados que serão discutidos nas seções subsequentes.

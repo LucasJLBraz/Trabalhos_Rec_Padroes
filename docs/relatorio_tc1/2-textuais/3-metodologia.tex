@@ -1,7 +1,7 @@
 \section{Metodologia}
 \label{chap:metodologia}
 
-A metodologia adotada para este trabalho busca estabelecer um fluxo rigoroso desde a análise inicial dos atributos até a validação estatística dos classificadores. O processo inicia-se com a caracterização do conjunto de dados e segue para a implementação algorítmica e definição do protocolo experimental, garantindo que as comparações de desempenho sejam conduzidas sob condições controladas e reprodutíveis.
+O processo inicia-se com a caracterização do conjunto de dados e segue para a implementação algorítmica e definição do protocolo experimental, garantindo que as comparações de desempenho sejam conduzidas sob condições controladas e reprodutíveis.
 
 \subsection{Base de Dados: Vertebral Column}
 O dataset \textit{Vertebral Column} (UCI) é composto por 310 amostras e 6 atributos biomecânicos extraídos de imagens de radiografia: incidência pélvica, inclinação pélvica, ângulo de lordose lombar, inclinação sacral, raio pélvico e grau de espondilolistese. As amostras estão distribuídas em três categorias diagnósticas: patologias do tipo Hérnia de Disco (\textit{Hernia}), Espondilolistese (\textit{Spondylolisthesis}) e casos de indivíduos sem patologias (\textit{Normal}).
@@ -12,6 +12,6 @@ Para este trabalho, foram desenvolvidos três modelos principais de classificaç
 O segundo modelo, o Classificador de Distância Mínima ao Centróide (MDC), foi implementado em duas versões: uma tradicional, que calcula o centróide através da média aritmética dos vetores de cada classe, e uma versão robusta, que utiliza a mediana para definir o ponto central. Esta variação visa reduzir a influência de possíveis valores atípicos (\textit{outliers}) na definição das fronteiras de decisão. Por fim, o Classificador de Máxima Correlação (MAXCO) foi desenvolvido para atribuir a classe com base na maior similaridade de cosseno entre a amostra centralizada e o centróide centralizado da categoria correspondente.
 
 \subsection{Protocolo Experimental}
-O protocolo de treinamento e teste foi desenhado para mitigar o viés de seleção dos dados. Primeiramente, as classes categóricas foram convertidas em valores numéricos ordinais (0 a $N-1$) via \textit{Label Encoding}. Esta decisão justifica-se pela necessidade de compatibilidade matemática com as operações de álgebra linear dos modelos, que esperam vetores de alvos numéricos para o cálculo de métricas e indexação de centróides.
+Primeiramente, as classes categóricas foram convertidas em valores numéricos ordinais (0 a $N-1$) via \textit{Label Encoding}. Esta decisão justifica-se pela necessidade de compatibilidade matemática com as operações de álgebra linear dos modelos, que esperam vetores de alvos numéricos para o cálculo de métricas e indexação de centróides.
 
 A avaliação do desempenho foi conduzida através de 100 rodadas independentes para cada uma das cinco proporções de divisão treino/teste testadas (80/20, 70/30, 50/50, 30/70 e 20/80). Em cada execução, utilizou-se a técnica de amostragem estratificada para preservar a distribuição original das classes em ambos os conjuntos. Ao final das rodadas, extraíram-se métricas de acurácia média, desvio padrão e tempos computacionais de treinamento e inferência, permitindo uma análise comparativa de robustez e eficiência.

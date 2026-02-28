@@ -3,7 +3,17 @@
 
 O projeto de sistemas de reconhecimento de padrões enfrenta frequentemente o desafio da "maldição da dimensionalidade", onde o aumento do número de atributos pode degradar o desempenho dos classificadores devido à redundância e ao ruído. Este Terceiro Trabalho Computacional (TC3) aborda esta problemática através da integração de técnicas de Redução de Dimensionalidade, como a Análise de Componentes Principais (PCA), com modelos de classificação probabilísticos e baseados em agrupamento. O objetivo central é avaliar como a projeção dos dados em subespaços de máxima variância impacta a acurácia e a estabilidade numérica de diferentes arquiteturas de decisão.
 
-Para esta análise, utilizamos o Classificador Quadrático Gaussiano (CQG), que modela as classes através de densidades multivariadas, e o Distância Mínima ao Protótipo (DMP) Multi-Protótipo. O DMP representa uma abordagem híbrida, onde o algoritmo K-médias é empregado para identificar centros de massa representativos em cada classe, permitindo fronteiras de decisão mais flexíveis do que as obtidas com um único protótipo por classe. O dataset utilizado continua sendo o \textit{Wall-Following Robot Navigation}, cuja alta dimensionalidade (24 sensores) oferece o cenário ideal para testar a eficácia do PCA na eliminação de redundâncias espaciais.
+Para esta análise, utilizamos o Classificador Quadrático Gaussiano (CQG), que modela as classes através de densidades multivariadas, e o Distribuidor de Médias de Protótipos (DMP) Multi-Protótipo. O dataset utilizado continua sendo o \textit{Wall-Following Robot Navigation}, cuja alta dimensionalidade (24 sensores) oferece o cenário ideal para testar a eficácia do PCA na eliminação de redundâncias espaciais.
+
+\subsection{Análise do Dataset e Distribuição de Classes}
+Uma característica crucial deste conjunto de dados é o desbalanceamento entre as categorias de movimento do robô. Como ilustrado na Figura~\ref{fig:dist_classes}, a classe \textit{Slight-Left-Turn} (com apenas 328 amostras) é significativamente menor que as demais, representando a classe minoritária absoluta. Devido a essa escassez de dados, espera-se que o desempenho dos classificadores para esta classe específica seja inferior, uma vez que a estimativa das densidades Gaussianas (CQG) e a identificação de centros de massa representativos (DMP) tornam-se menos robustas em comparação com a classe majoritária \textit{Move-Forward} (2205 amostras).
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figuras/distribuicao_classes.png}
+    \caption{Distribuição de frequência das amostras por classe, evidenciando o desbalanceamento do dataset.}
+    \label{fig:dist_classes}
+\end{figure}
 
 Seguindo o compromisso com a transparência científica, o desenvolvimento foi realizado de forma modular e versionado em repositório público (\url{https://github.com/LucasJLBraz/Trabalhos_Rec_Padroes}). A estrutura de arquivos específica para o TC3 é apresentada na Tabela~\ref{tab:estrutura_arquivos_tc3}.
 
@@ -24,5 +34,3 @@ Seguindo o compromisso com a transparência científica, o desenvolvimento foi r
 \end{tabular}%
 }
 \end{table}
-
-A organização modular permite que as transformações de PCA e os classificadores sejam orquestrados de forma fluida nos experimentos, garantindo que as conclusões sobre a influência da dimensionalidade sejam fundamentadas em uma base de código robusta e testada.

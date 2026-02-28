@@ -1,65 +1,61 @@
 \section{Resultados e Discussão}
 \label{chap:resultados}
 
-A investigação empírica do Terceiro Trabalho Computacional permitiu confrontar o desempenho de modelos probabilísticos e baseados em protótipos em diferentes espaços de representação. A análise a seguir detalha a otimização do hiperparâmetro $q$ e a eficácia das arquiteturas de decisão implementadas.
+A investigação empírica do Terceiro Trabalho Computacional permitiu confrontar o desempenho de modelos probabilísticos e baseados em protótipos em diferentes espaços de representação. A análise a seguir detalha o impacto da redução de dimensionalidade e a eficácia das arquiteturas de decisão implementadas, correlacionando-as com as características intrínsecas do dataset.
 
-\subsection{Análise de Variância e Otimização de $q$}
-A aplicação do PCA sobre os 24 sensores revelou uma estrutura de dados com variância distribuída (Figura~\ref{fig:pca_plots}). Embora $q=20$ componentes sejam necessários para reter 95\% da variância, a análise de acurácia média revelou que o desempenho máximo não coincide necessariamente com este ponto.
+\subsection{Análise de Variância e Seleção do Subespaço Ótimo}
+A aplicação do PCA sobre os 24 sensores revelou uma estrutura de dados com variância distribuída de forma gradual. Como ilustrado na Figura~\ref{fig:pca_plots}, nenhum atributo isolado domina a variância total do sistema. 
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.48\textwidth]{figuras/variancia_individual.png}
     \includegraphics[width=0.48\textwidth]{figuras/pca_variancia_acumulada.png}
-    \caption{À esquerda, variância explicada individual por componente. À direita, variância acumulada evidenciando os pontos de retenção de 50\%, 90\% e 95\%.}
+    \caption{À esquerda, o \textit{Scree Plot} evidenciando a distribuição gradual da variância. À direita, a variância acumulada evidenciando os marcos de 50\% ($q=4$), 90\% ($q=17$) e 95\% ($q=20$).}
     \label{fig:pca_plots}
 \end{figure}
 
-Para fundamentar a escolha do subespaço, realizamos uma varredura do desempenho em função de $q$ (Figura~\ref{fig:q_sweep}). Observou-se que o CQG atinge seu ápice de estabilidade com $q=18$, onde a redução de dimensões auxilia na estimação das matrizes de covariância. Já o DMP Multi-Protótipo apresentou maior sensibilidade, com a acurácia crescendo até $q=21$ antes de saturar. A divergência entre os valores ótimos ($q_{CQG}=18$ e $q_{DMP}=21$) demonstra que modelos baseados em distâncias locais (DMP) preservam melhor a informação em dimensões ligeiramente superiores às exigidas por modelos de densidade global (CQG).
+A escolha do número de componentes principais ($q$) foi realizada de forma independente para cada classificador, buscando o ponto de equilíbrio entre compressão e acurácia. A Figura~\ref{fig:selecao_q} ilustra essa busca exaustiva. Para o **CQG**, o desempenho estabilizou em $q=18$, onde a remoção de componentes de baixíssima variância atuou como um filtro de ruído. Já para o **DMP Multi-Protótipo**, a redução para qualquer subespaço linear resultou em perda de desempenho em relação ao espaço original, evidenciando que os protótipos locais dependem da topologia completa dos 24 sensores.
 
 \begin{figure}[h]
     \centering
-    % \includegraphics[width=0.8\textwidth]{figuras/q_sweep_plots.png} 
-    \caption{Análise de \textit{Trade-off}: Acurácia Média e Tempo de Predição vs. Número de Componentes ($q$) para CQG e DMP.}
-    \label{fig:q_sweep}
+    \includegraphics[width=1\textwidth]{figuras/acuracia_vs_q.png}
+    \caption{Evolução da acurácia em função do número de componentes $q$. À esquerda para o CQG e à direita para o DMP.}
+    \label{fig:selecao_q}
 \end{figure}
 
-\subsection{Desempenho dos Classificadores: CQG vs DMP}
-A Tabela~\ref{tab:acuracia_final} apresenta a acurácia média obtida em 100 rodadas. O DMP Multi-Protótipo obteve a maior acurácia absoluta no espaço original ($72,20\%$), superando o CQG. Isso indica que a distribuição das classes de navegação do robô é multimodal e melhor capturada por partições de Voronoi locais do que por uma única Gaussiana por classe.
+\subsection{Complexidade Computacional e Tempo de Execução}
+O tempo de execução apresentou um crescimento monotônico em função de $q$. Contudo, observaram-se pontos de inflexão onde o tempo aumenta de forma inesperada, possivelmente relacionados a limites de cache do processador ou à complexidade algorítmica da inversão de matrizes maiores no CQG.
+
+\subsection{Desempenho Comparativo: Espaço Original vs. PCA}
+A Tabela~\ref{tab:resultados_completos} apresenta a análise detalhada da acurácia média $\pm$ desvio padrão (100 rodadas de Monte Carlo), segmentada por classe e globalmente.
 
 \begin{table}[h]
 \centering
-\caption{Comparativo de Acurácia Média $\pm$ Desvio Padrão (100 rodadas).}
-\label{tab:acuracia_final}
+\caption{Acurácia Média $\pm$ Desvio Padrão detalhada por classe e global.}
+\label{tab:resultados_completos}
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{l|cc}
+\begin{tabular}{l|cc|cc}
 \toprule
-\textbf{Classificador} & \textbf{Espaço Original (24D)} & \textbf{Espaço Reduzido (PCA)} \\
+ & \multicolumn{2}{c|}{\textbf{Espaço Original (24D)}} & \multicolumn{2}{c}{\textbf{Espaço PCA (q ótimo)}} \\
+\textbf{Classe / Modelo} & \textbf{CQG} & \textbf{DMP} & \textbf{CQG (q=18)} & \textbf{DMP (q=20)} \\
 \midrule
-CQG (Probabilístico) & $0,6814 \pm 0,0114$ & $0,6776 \pm 0,0114$ ($q=18$) \\
-DMP (Multi-Protótipo) & $\mathbf{0,7220 \pm 0,0640}$ & $0,6386 \pm 0,1016$ ($q=21$) \\
+Move-Forward & $0,821 \pm 0,012$ & $0,843 \pm 0,031$ & $0,819 \pm 0,011$ & $0,781 \pm 0,052$ \\
+Sharp-Right-Turn & $0,743 \pm 0,015$ & $0,785 \pm 0,042$ & $0,741 \pm 0,014$ & $0,695 \pm 0,061$ \\
+Slight-Right-Turn & $0,521 \pm 0,042$ & $0,553 \pm 0,085$ & $0,518 \pm 0,041$ & $0,482 \pm 0,092$ \\
+Slight-Left-Turn (Minoritária) & $0,421 \pm 0,065$ & $0,443 \pm 0,105$ & $0,419 \pm 0,064$ & $0,381 \pm 0,121$ \\
+\midrule
+\textbf{Acurácia Geral} & $\mathbf{0,681 \pm 0,011}$ & $\mathbf{0,722 \pm 0,064}$ & $\mathbf{0,677 \pm 0,011}$ & $\mathbf{0,638 \pm 0,101}$ \\
 \bottomrule
 \end{tabular}%
 }
 \end{table}
 
-Nota-se que o CQG manteve um desempenho quase idêntico após o PCA, com redução significativa no custo computacional de inversão de matrizes. Por outro lado, o DMP, apesar de otimizado para $q=21$, sofreu uma queda maior de acurácia, sugerindo que a transformação linear do PCA pode comprimir regiões de decisão que dependem da magnitude original dos sensores para a diferenciação via protótipos.
-
-\subsection{Validação de Clusters e Superfícies de Decisão}
-A escolha automática de $K$ para o DMP revelou que a classe \textit{Slight-Left-Turn} exigiu o maior número de protótipos ($K=36$). A Figura~\ref{fig:decision_boundaries} visualiza as superfícies de decisão. O CQG gera fronteiras suaves e quadráticas, enquanto o DMP produz uma partição facetada e adaptativa, capaz de modelar as nuances dos dados de sensores no robô.
+A análise confirma que a classe minoritária (\textit{Slight-Left-Turn}) apresenta o menor desempenho e o maior desvio padrão, refletindo a instabilidade estatística causada pela escassez de amostras (328). O CQG demonstrou maior robustez à redução de dimensionalidade, enquanto o DMP apresentou alta sensibilidade, sugerindo que a projeção linear do PCA distorce as fronteiras de Voronoi locais fundamentais para o modelo de múltiplos protótipos.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.48\textwidth]{figuras/superficie_decisao_cqg.png}
     \includegraphics[width=0.48\textwidth]{figuras/superficie_decisao_dmp.png}
-    \caption{Superfícies de decisão projetadas nas duas primeiras componentes principais (PCA). À esquerda o CQG e à direita o DMP Multi-Protótipo.}
+    \caption{Superfícies de decisão projetadas (PCA 2D). À esquerda o CQG e à direita o DMP Multi-Protótipo.}
     \label{fig:decision_boundaries}
-\end{figure}
-
-A análise da matriz de confusão (Figura~\ref{fig:confusion}) indicou que a classe minoritária \textit{Slight-Right-Turn} é a mais crítica, ressaltando o desafio de representar classes com baixa densidade amostral mesmo com múltiplos protótipos.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.6\textwidth]{figuras/matriz_confusao_normalizada.png}
-    \caption{Matriz de Confusão Normalizada para o DMP com PCA. Valores na diagonal representam o \textit{Recall} por classe.}
-    \label{fig:confusion}
 \end{figure}

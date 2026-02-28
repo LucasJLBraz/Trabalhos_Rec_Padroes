@@ -1,7 +1,7 @@
 \section{Resultados e Discussão}
 \label{chap:resultados}
 
-A investigação empírica dos métodos manuais para estimação da matriz de covariância revelou \textit{insights} significativos sobre a eficiência da álgebra linear computacional em Python. A Tabela~\ref{tab:benchmarks} apresenta os tempos de execução médios, evidenciando a superioridade das implementações vetorizadas.
+A investigação empírica dos métodos manuais para estimação da matriz de covariância revelou informações relevantes sobre a eficiência da álgebra linear computacional em Python. A Tabela~\ref{tab:benchmarks} apresenta os tempos de execução médios, evidenciando a superioridade das implementações vetorizadas.
 
 \begin{table}[h]
 \centering
@@ -23,9 +23,7 @@ A investigação empírica dos métodos manuais para estimação da matriz de co
 }
 \end{table}
 
-As implementações matriciais (\texttt{mcovar2} e \texttt{mcovar4}) foram ordens de magnitude mais rápidas que as versões com laço ($\sim 300\times$ para 4 sensores). Notavelmente, o método \texttt{mcovar4} superou o \texttt{mcovar2} e a própria função nativa do NumPy. A superioridade do \texttt{mcovar4} sobre o \texttt{mcovar2} deve-se ao fato de que o \texttt{mcovar2} requer a centralização explícita da matriz ($\mathbf{X} - \mathbf{m}$), o que gera uma nova alocação de memória de grande porte e uma operação de subtração elemento a elemento. O \texttt{mcovar4} evita esse \textit{overhead} ao realizar diretamente o produto $\mathbf{X}\mathbf{X}^T$, que é altamente otimizado por rotinas BLAS, e subtrair apenas uma matriz pequena proveniente do produto externo das médias.
-
-A precisão numérica foi validada pela norma de Frobenius do erro residual em relação ao NumPy (Tabela~\ref{tab:normas_erro}). Os erros da ordem de $10^{-4}$ a $10^{-3}$ confirmam que as implementações manuais são numericamente equivalentes à referência, com discrepâncias mínimas causadas pela ordem de operações em ponto flutuante.
+As implementações matriciais (\texttt{mcovar2} e \texttt{mcovar4}) foram ordens de magnitude mais rápidas que as versões com laço ($\sim 300\times$ para 4 sensores). Notavelmente, o método \texttt{mcovar4} superou o \texttt{mcovar2} e a própria função nativa do NumPy. A superioridade do \texttt{mcovar4} deve-se ao fato de evitar a centralização explícita da matriz, minimizando alocações de memória e maximizando o uso de rotinas BLAS otimizadas. A precisão numérica foi validada pela norma de Frobenius do erro residual (Tabela~\ref{tab:normas_erro}), confirmando a equivalência matemática das implementações.
 
 \begin{table}[h]
 \centering
@@ -40,22 +38,47 @@ Todos (C1 a C4) & $1{,}61 \times 10^{-4}$ & $2{,}12 \times 10^{-3}$ \\
 \end{tabular}
 \end{table}
 
-A estrutura de correlação dos sensores foi visualizada via mapas de calor. A Figura~\ref{fig:heatmap_4} e a Figura~\ref{fig:heatmap_24} mostram, respectivamente, as interdependências para os cenários de baixa e alta dimensionalidade.
+\subsection{Distribuição e Variabilidade dos Dados}
+A análise visual das distribuições dos sensores, ilustrada na Figura~\ref{fig:distribuicoes}, permite identificar como a variância se comporta entre as diferentes classes de movimento. Os histogramas e \textit{violin plots} evidenciam que, embora existam sobreposições em certas leituras de ultrassom, classes como \textit{Sharp-Right-Turn} apresentam dispersões características que facilitam a discriminação via covariância.
 
 \begin{figure}[h]
     \centering
-    % \includegraphics[width=0.5\textwidth]{figuras/heatmap_cov_4.png}
-    \caption{Mapa de calor da matriz de covariância global para o dataset de 4 sensores.}
-    \label{fig:heatmap_4}
+    \includegraphics[width=0.9\textwidth]{figuras/distribuicoes_sensores.png}
+    \caption{Histogramas e Violin Plots comparativos das leituras dos sensores por classe.}
+    \label{fig:distribuicoes}
 \end{figure}
+
+\subsection{Análise de Condicionamento e Estabilidade Numérica}
+Um ponto crítico no cálculo de matrizes de covariância é o seu condicionamento numérico, que determina a sensibilidade da inversão da matriz a pequenas flutuações nos dados. A Tabela~\ref{tab:condicionamento} detalha os indicadores de invertibilidade (Posto, Cond e RCond) para os cenários global e por classe.
+
+\begin{table}[h]
+\centering
+\caption{Indicadores de Invertibilidade e Estabilidade Numérica.}
+\label{tab:condicionamento}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{l|ccc|ccc}
+\toprule
+ & \multicolumn{3}{c|}{\textbf{24 Sensores}} & \multicolumn{3}{c}{\textbf{4 Sensores}} \\
+\textbf{Classe/Escopo} & \textbf{Posto} & \textbf{Cond} & \textbf{RCond} & \textbf{Posto} & \textbf{Cond} & \textbf{RCond} \\
+\midrule
+Global & 24 & $2{,}05 \times 10^{1}$ & $4{,}87 \times 10^{-2}$ & 4 & $7{,}57 \times 10^{0}$ & $1{,}32 \times 10^{-1}$ \\
+Move-Forward & 24 & $5{,}35 \times 10^{1}$ & $1{,}87 \times 10^{-2}$ & 4 & $6{,}43 \times 10^{1}$ & $1{,}55 \times 10^{-2}$ \\
+Sharp-Right-Turn & 24 & $3{,}13 \times 10^{1}$ & $3{,}20 \times 10^{-2}$ & 4 & $2{,}15 \times 10^{2}$ & $4{,}65 \times 10^{-3}$ \\
+Slight-Left-Turn & 24 & $1{,}73 \times 10^{2}$ & $5{,}77 \times 10^{-3}$ & 4 & $1{,}11 \times 10^{1}$ & $9{,}00 \times 10^{-2}$ \\
+Slight-Right-Turn & 24 & $1{,}96 \times 10^{2}$ & $5{,}10 \times 10^{-3}$ & 4 & $2{,}19 \times 10^{2}$ & $4{,}57 \times 10^{-3}$ \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+Diferente do esperado para dados redundantes, todas as matrizes apresentaram \textbf{posto completo}. O número de condicionamento máximo observado foi da ordem de $10^{2}$, o que é considerado baixo na computação científica. Isso indica que as matrizes são \textbf{bem-condicionadas} e estáveis para operações de inversão.
+
+Quanto à Regularização de Tikhonov ($\mathbf{C} + \epsilon \mathbf{I}$), os experimentos confirmaram que, devido ao excelente condicionamento nativo das matrizes, a técnica não produziu mudanças significativas nos resultados ou na capacidade de generalização. Em sistemas mal-condicionados, a regularização é vital para evitar a singularidade ($RCond \to 0$); contudo, neste dataset, as leituras dos sensores de ultrassom provaram ser suficientemente independentes para manter a integridade numérica das matrizes de covariância originais.
 
 \begin{figure}[h]
     \centering
-    % \includegraphics[width=0.7\textwidth]{figuras/heatmap_cov_24.png}
-    \caption{Mapa de calor da matriz de covariância global para o dataset de 24 sensores. Observa-se alta variância em US15 e US16.}
-    \label{fig:heatmap_24}
+    \includegraphics[width=0.48\textwidth]{figuras/heatmap_cov_4.png}
+    \includegraphics[width=0.48\textwidth]{figuras/heatmap_cov_24.png}
+    \caption{Mapas de calor das matrizes de covariância globais para 4 (esq.) e 24 (dir.) sensores.}
+    \label{fig:heatmaps}
 \end{figure}
-
-Diferente do esperado para dados de alta redundância, a análise de invertibilidade revelou que as matrizes originais são de posto completo e bem-condicionadas. Para o dataset de 24 sensores, o posto observado foi 24, com número de condicionamento aproximado de $2{,}05 \times 10^{1}$, o que indica excelente estabilidade numérica para inversão. Para os 4 sensores, o posto foi 4 com $\kappa \approx 7{,}57$. 
-
-Mesmo diante deste cenário favorável, realizou-se a experimentação com a regularização de Tikhonov ($\mathbf{C} + 0{,}1\mathbf{I}$). Os resultados mostraram que a regularização reduziu marginalmente o número de condicionamento (melhorando ainda mais a estabilidade), sem alterar o posto das matrizes. Esta análise confirma que as bases de dados são numericamente robustas, permitindo o uso direto de classificadores baseados em inversão de matrizes de covariância.
