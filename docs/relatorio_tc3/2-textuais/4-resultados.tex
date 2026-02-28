@@ -1,10 +1,10 @@
 \section{Resultados e Discussão}
 \label{chap:resultados}
 
-A investigação empírica do Terceiro Trabalho Computacional permitiu confrontar o desempenho de modelos probabilísticos e baseados em protótipos em diferentes espaços de representação. A análise a seguir detalha o impacto da redução de dimensionalidade e a eficácia das arquiteturas de decisão implementadas.
+A investigação empírica do Terceiro Trabalho Computacional permitiu confrontar o desempenho de modelos probabilísticos e baseados em protótipos em diferentes espaços de representação. A análise a seguir detalha a otimização do hiperparâmetro $q$ e a eficácia das arquiteturas de decisão implementadas.
 
-\subsection{Análise de Redução de Dimensionalidade (PCA)}
-A aplicação do PCA sobre os 24 sensores revelou uma estrutura de dados com variância distribuída, conforme ilustrado na Figura~\ref{fig:pca_plots}. O gráfico de variância individual (\textit{Scree Plot}) indica que não há um domínio absoluto de poucas componentes, o que é coerente com a análise de condicionamento do TC2, onde as matrizes apresentaram posto completo.
+\subsection{Análise de Variância e Otimização de $q$}
+A aplicação do PCA sobre os 24 sensores revelou uma estrutura de dados com variância distribuída (Figura~\ref{fig:pca_plots}). Embora $q=20$ componentes sejam necessários para reter 95\% da variância, a análise de acurácia média revelou que o desempenho máximo não coincide necessariamente com este ponto.
 
 \begin{figure}[h]
     \centering
@@ -14,10 +14,17 @@ A aplicação do PCA sobre os 24 sensores revelou uma estrutura de dados com var
     \label{fig:pca_plots}
 \end{figure}
 
-Para reter $95\%$ da variância original, foram necessárias $q=20$ componentes principais. Esta observação confirma que, apesar da redundância espacial dos sensores, a informação útil está espalhada pelo espectro de atributos. Para os experimentos oficiais de classificação com redução, optou-se por $q=18$ componentes, ponto onde a curva de variância começa a estabilizar, oferecendo um bom compromisso entre compressão e preservação de sinal.
+Para fundamentar a escolha do subespaço, realizamos uma varredura do desempenho em função de $q$ (Figura~\ref{fig:q_sweep}). Observou-se que o CQG atinge seu ápice de estabilidade com $q=18$, onde a redução de dimensões auxilia na estimação das matrizes de covariância. Já o DMP Multi-Protótipo apresentou maior sensibilidade, com a acurácia crescendo até $q=21$ antes de saturar. A divergência entre os valores ótimos ($q_{CQG}=18$ e $q_{DMP}=21$) demonstra que modelos baseados em distâncias locais (DMP) preservam melhor a informação em dimensões ligeiramente superiores às exigidas por modelos de densidade global (CQG).
+
+\begin{figure}[h]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{figuras/q_sweep_plots.png} 
+    \caption{Análise de \textit{Trade-off}: Acurácia Média e Tempo de Predição vs. Número de Componentes ($q$) para CQG e DMP.}
+    \label{fig:q_sweep}
+\end{figure}
 
 \subsection{Desempenho dos Classificadores: CQG vs DMP}
-A Tabela~\ref{tab:acuracia_final} apresenta a acurácia média obtida em 100 rodadas de Monte Carlo. O Classificador Quadrático Gaussiano (CQG) demonstrou uma estabilidade notável, mantendo o desempenho mesmo após a redução para 18 dimensões ($67,76\%$ vs $68,14\%$). Este resultado justifica a eficácia do PCA em remover ruído sem comprometer a estrutura das densidades Gaussianas.
+A Tabela~\ref{tab:acuracia_final} apresenta a acurácia média obtida em 100 rodadas. O DMP Multi-Protótipo obteve a maior acurácia absoluta no espaço original ($72,20\%$), superando o CQG. Isso indica que a distribuição das classes de navegação do robô é multimodal e melhor capturada por partições de Voronoi locais do que por uma única Gaussiana por classe.
 
 \begin{table}[h]
 \centering
@@ -26,19 +33,19 @@ A Tabela~\ref{tab:acuracia_final} apresenta a acurácia média obtida em 100 rod
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{l|cc}
 \toprule
-\textbf{Classificador} & \textbf{Espaço Original (24D)} & \textbf{Espaço Reduzido (PCA - 18D)} \\
+\textbf{Classificador} & \textbf{Espaço Original (24D)} & \textbf{Espaço Reduzido (PCA)} \\
 \midrule
-CQG (Probabilístico) & $0,6814 \pm 0,0114$ & $0,6776 \pm 0,0114$ \\
-DMP (Multi-Protótipo) & $\mathbf{0,7220 \pm 0,0640}$ & $0,6386 \pm 0,1016$ \\
+CQG (Probabilístico) & $0,6814 \pm 0,0114$ & $0,6776 \pm 0,0114$ ($q=18$) \\
+DMP (Multi-Protótipo) & $\mathbf{0,7220 \pm 0,0640}$ & $0,6386 \pm 0,1016$ ($q=21$) \\
 \bottomrule
 \end{tabular}%
 }
 \end{table}
 
-O modelo DMP Multi-Protótipo obteve a maior acurácia absoluta no espaço original ($72,20\%$), evidenciando que a partição de Voronoi flexível (com múltiplos centros de massa por classe) captura melhor a geometria não-linear dos dados de navegação. Contudo, o DMP apresentou maior sensibilidade ao PCA, com queda de desempenho e aumento do desvio padrão, sugerindo que a redução linear pode ter fundido regiões de decisão que eram separáveis via protótipos locais no espaço original.
+Nota-se que o CQG manteve um desempenho quase idêntico após o PCA, com redução significativa no custo computacional de inversão de matrizes. Por outro lado, o DMP, apesar de otimizado para $q=21$, sofreu uma queda maior de acurácia, sugerindo que a transformação linear do PCA pode comprimir regiões de decisão que dependem da magnitude original dos sensores para a diferenciação via protótipos.
 
 \subsection{Validação de Clusters e Superfícies de Decisão}
-A escolha automática do número de protótipos ($K$) para o DMP via votação de índices (DB, CH, Dunn, Sil, I-Index, Ball-Hall) revelou que a classe \textit{Slight-Left-Turn} exigiu o maior número de protótipos ($K=36$), enquanto outras classes foram bem representadas com menos centros. A Figura~\ref{fig:decision_boundaries} visualiza as regiões de decisão projetadas em 2D. Nota-se que o CQG gera fronteiras suaves e parabólicas, enquanto o DMP cria uma fronteira "facetada" e complexa, capaz de se adaptar a \textit{clusters} multimodais.
+A escolha automática de $K$ para o DMP revelou que a classe \textit{Slight-Left-Turn} exigiu o maior número de protótipos ($K=36$). A Figura~\ref{fig:decision_boundaries} visualiza as superfícies de decisão. O CQG gera fronteiras suaves e quadráticas, enquanto o DMP produz uma partição facetada e adaptativa, capaz de modelar as nuances dos dados de sensores no robô.
 
 \begin{figure}[h]
     \centering
@@ -48,7 +55,7 @@ A escolha automática do número de protótipos ($K$) para o DMP via votação d
     \label{fig:decision_boundaries}
 \end{figure}
 
-Por fim, a análise da matriz de confusão (Figura~\ref{fig:confusion}) indicou que a classe minoritária \textit{Slight-Right-Turn} sofre o maior viés, sendo frequentemente confundida com a movimentação frontal. Este comportamento ressalta a necessidade de considerar o desbalanceamento de classes em futuras iterações do sistema.
+A análise da matriz de confusão (Figura~\ref{fig:confusion}) indicou que a classe minoritária \textit{Slight-Right-Turn} é a mais crítica, ressaltando o desafio de representar classes com baixa densidade amostral mesmo com múltiplos protótipos.
 
 \begin{figure}[h]
     \centering

@@ -1,7 +1,7 @@
 \section{Resultados e Discussão}
 \label{chap:resultados}
 
-A investigação empírica dos quatro métodos manuais para estimação da matriz de covariância foi estruturada para responder a questões sobre eficiência computacional, precisão numérica e estabilidade em cenários de alta dimensionalidade. A Tabela~\ref{tab:benchmarks} apresenta os tempos de execução médios, evidenciando a superioridade das implementações vetorizadas (\texttt{mcovar2} e \texttt{mcovar4}) em relação às versões baseadas em laços explícitos (\texttt{mcovar1} e \texttt{mcovar3}).
+A investigação empírica dos métodos manuais para estimação da matriz de covariância revelou \textit{insights} significativos sobre a eficiência da álgebra linear computacional em Python. A Tabela~\ref{tab:benchmarks} apresenta os tempos de execução médios, evidenciando a superioridade das implementações vetorizadas.
 
 \begin{table}[h]
 \centering
@@ -13,32 +13,49 @@ A investigação empírica dos quatro métodos manuais para estimação da matri
  & \multicolumn{2}{c|}{\textbf{4 Sensores}} & \multicolumn{2}{c}{\textbf{24 Sensores}} \\
 \textbf{Método} & \textbf{Média (ms)} & \textbf{Desvio (ms)} & \textbf{Média (ms)} & \textbf{Desvio (ms)} \\
 \midrule
-\texttt{mcovar1} (Loop-Dev) & $14{,}62$ & $0{,}05$ & $18{,}84$ & $0{,}10$ \\
-\texttt{mcovar2} (Matriz-Dev) & $0{,}04$ & $0{,}00$ & $0{,}20$ & $0{,}01$ \\
-\texttt{mcovar3} (Loop-Mom) & $14{,}73$ & $0{,}07$ & $19{,}27$ & $0{,}11$ \\
-\texttt{mcovar4} (Matriz-Mom) & $\mathbf{0{,}04}$ & $0{,}01$ & $\mathbf{0{,}17}$ & $0{,}01$ \\
-\texttt{NumPy Cov} & $0{,}06$ & $0{,}01$ & $0{,}32$ & $0{,}01$ \\
+\texttt{mcovar1} (Loop-Dev) & $14{,}28$ & $0{,}25$ & $18{,}68$ & $0{,}73$ \\
+\texttt{mcovar2} (Matriz-Dev) & $0{,}06$ & $0{,}02$ & $0{,}24$ & $0{,}04$ \\
+\texttt{mcovar3} (Loop-Mom) & $14{,}58$ & $0{,}28$ & $19{,}25$ & $0{,}43$ \\
+\texttt{mcovar4} (Matriz-Mom) & $\mathbf{0{,}05}$ & $0{,}02$ & $\mathbf{0{,}20}$ & $0{,}03$ \\
+\texttt{NumPy Cov} & $0{,}09$ & $0{,}02$ & $0{,}39$ & $0{,}05$ \\
 \bottomrule
 \end{tabular}%
 }
 \end{table}
 
-As implementações matriciais demonstraram ser ordens de magnitude mais rápidas que as versões com laço ($\sim 500\times$ mais rápidas para 4 sensores e $\sim 100\times$ para 24 sensores). O método \texttt{mcovar4} apresentou o melhor desempenho geral, superando inclusive a função nativa do NumPy em ambos os cenários de dimensionalidade. Esta diferença de desempenho ocorre porque a implementação manual via momentos de segunda ordem minimiza as checagens de tipos e tratamentos genéricos de NaNs que o \texttt{np.cov} realiza por padrão. A Figura~\ref{fig:benchmark_plots} ilustra graficamente estas discrepâncias através de histogramas e \textit{violin plots} que evidenciam a baixa variância e alta eficiência dos métodos vetorizados.
+As implementações matriciais (\texttt{mcovar2} e \texttt{mcovar4}) foram ordens de magnitude mais rápidas que as versões com laço ($\sim 300\times$ para 4 sensores). Notavelmente, o método \texttt{mcovar4} superou o \texttt{mcovar2} e a própria função nativa do NumPy. A superioridade do \texttt{mcovar4} sobre o \texttt{mcovar2} deve-se ao fato de que o \texttt{mcovar2} requer a centralização explícita da matriz ($\mathbf{X} - \mathbf{m}$), o que gera uma nova alocação de memória de grande porte e uma operação de subtração elemento a elemento. O \texttt{mcovar4} evita esse \textit{overhead} ao realizar diretamente o produto $\mathbf{X}\mathbf{X}^T$, que é altamente otimizado por rotinas BLAS, e subtrair apenas uma matriz pequena proveniente do produto externo das médias.
+
+A precisão numérica foi validada pela norma de Frobenius do erro residual em relação ao NumPy (Tabela~\ref{tab:normas_erro}). Os erros da ordem de $10^{-4}$ a $10^{-3}$ confirmam que as implementações manuais são numericamente equivalentes à referência, com discrepâncias mínimas causadas pela ordem de operações em ponto flutuante.
+
+\begin{table}[h]
+\centering
+\caption{Norma de Frobenius do erro residual ($E = \| \mathbf{C}_{my} - \mathbf{C}_{ref} \|_F$).}
+\label{tab:normas_erro}
+\begin{tabular}{l|cc}
+\toprule
+\textbf{Método} & \textbf{4 Sensores} & \textbf{24 Sensores} \\
+\midrule
+Todos (C1 a C4) & $1{,}61 \times 10^{-4}$ & $2{,}12 \times 10^{-3}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A estrutura de correlação dos sensores foi visualizada via mapas de calor. A Figura~\ref{fig:heatmap_4} e a Figura~\ref{fig:heatmap_24} mostram, respectivamente, as interdependências para os cenários de baixa e alta dimensionalidade.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.9\textwidth]{figuras/benchmark_plots.png}
-    \caption{Distribuição de tempos de execução (Histograma e Violin Plot) para os métodos manuais vs NumPy Cov. A escala logarítmica evidencia a separação entre abordagens vetorizadas e baseadas em laços.}
-    \label{fig:benchmark_plots}
+    % \includegraphics[width=0.5\textwidth]{figuras/heatmap_cov_4.png}
+    \caption{Mapa de calor da matriz de covariância global para o dataset de 4 sensores.}
+    \label{fig:heatmap_4}
 \end{figure}
-
-Em termos de precisão numérica, todos os métodos produziram resultados estatisticamente indistinguíveis da referência do NumPy, com normas de Frobenius residuais da ordem de $10^{-4}$ a $10^{-3}$, inerentes às pequenas variações de arredondamento em ponto flutuante. A visualização das matrizes via mapas de calor (Figura~\ref{fig:heatmaps}) revela padrões claros de correlação entre os sensores adjacentes, confirmando a redundância espacial característica do robô \textit{Wall-Following}.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{figuras/heatmap_cov_4.png}
-    \caption{Mapas de calor das matrizes de covariância para os cenários de 4 e 24 sensores. Nota-se a alta covariância positiva entre sensores adjacentes, indicando redundância de sinal.}
-    \label{fig:heatmaps}
+    % \includegraphics[width=0.7\textwidth]{figuras/heatmap_cov_24.png}
+    \caption{Mapa de calor da matriz de covariância global para o dataset de 24 sensores. Observa-se alta variância em US15 e US16.}
+    \label{fig:heatmap_24}
 \end{figure}
 
-Um ponto crítico revelado na análise foi a falta de posto completo nas matrizes originais. Para o cenário de 24 sensores, o posto observado foi consistentemente $Rank = 23$, indicando que ao menos um sensor é linearmente dependente dos demais. O número de condicionamento extremamente elevado ($> 10^{20}$) inviabiliza a inversão direta de $\mathbf{C}$ para fins de classificação. Para contornar esta singularidade, a regularização de Tikhonov ($\mathbf{C} + 0{,}1\mathbf{I}$) foi aplicada com sucesso, restaurando o posto completo e garantindo a estabilidade numérica dos modelos probabilísticos subsequentes, sem perda significativa de informação estrutural.
+Diferente do esperado para dados de alta redundância, a análise de invertibilidade revelou que as matrizes originais são de posto completo e bem-condicionadas. Para o dataset de 24 sensores, o posto observado foi 24, com número de condicionamento aproximado de $2{,}05 \times 10^{1}$, o que indica excelente estabilidade numérica para inversão. Para os 4 sensores, o posto foi 4 com $\kappa \approx 7{,}57$. 
+
+Mesmo diante deste cenário favorável, realizou-se a experimentação com a regularização de Tikhonov ($\mathbf{C} + 0{,}1\mathbf{I}$). Os resultados mostraram que a regularização reduziu marginalmente o número de condicionamento (melhorando ainda mais a estabilidade), sem alterar o posto das matrizes. Esta análise confirma que as bases de dados são numericamente robustas, permitindo o uso direto de classificadores baseados em inversão de matrizes de covariância.
