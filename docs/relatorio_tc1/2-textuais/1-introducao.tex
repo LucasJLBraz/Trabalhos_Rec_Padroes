@@ -1,0 +1,27 @@
+\section{Introdução}
+\label{cap:introducao}
+
+Este relatório apresenta os resultados do primeiro Trabalho Computacional (TC1) da disciplina de Reconhecimento de Padrões. O objetivo central é a implementação e avaliação sistemática de classificadores supervisionados fundamentais: o Vizinho Mais Próximo (KNN), o Classificador de Distância Mínima ao Centróide (MDC) e o Classificador de Máxima Correlação (MAXCO). A análise busca compreender como diferentes métricas de similaridade e dissimilaridade, e protocolos experimentais influenciam a capacidade de generalização dos modelos.
+
+O estudo é aplicado ao conjunto de dados \textit{Vertebral Column} (UCI), que descreve atributos biomecânicos da coluna vertebral para a identificação de patologias como Hérnia de Disco e Espondilolistese. Além da comparação de acurácia, o trabalho investiga a robustez dos modelos frente a variações na proporção de dados de treinamento e a sensibilidade do KNN à ordem da distância de Minkowski.
+
+Para garantir a reprodutibilidade científica, todos os algoritmos foram implementados de forma modular em Python, utilizando predominantemente a biblioteca \textit{NumPy}. O código-fonte completo, bem como os notebooks de experimentos e os arquivos de dados, estão hospedados em repositório público no GitHub: \url{https://github.com/LucasJLBraz/Trabalhos_Rec_Padroes}. A organização do projeto para este trabalho é detalhada na Tabela~\ref{tab:estrutura_arquivos_tc1}.
+
+\begin{table}[h!]
+\centering
+\caption{Estrutura de diretórios e arquivos para o Trabalho Computacional 1.}
+\label{tab:estrutura_arquivos_tc1}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{ll}
+\toprule
+\textbf{Caminho} & \textbf{Descrição} \\
+\midrule
+\texttt{classificao\_padroes/models\_trabalho1.py} & Implementação dos classificadores KNN, MDC e MAXCO. \\
+\texttt{notebooks/Trabalho Computacional 1/} & Notebooks com a execução dos experimentos e visualizações. \\
+\hspace{1em}\texttt{trabalho1\_experimentos.ipynb} & Análise exploratória, treinamento e validação dos modelos. \\
+\texttt{references/TC1\_RecPad-PPGETI\_2025.2.pdf} & Descrição oficial das tarefas e requisitos do trabalho. \\
+\texttt{docs/relatorio\_tc1/} & Códigos-fonte em \LaTeX\ para a geração deste relatório. \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

@@ -1,0 +1,8 @@
+\section{Conclusão}
+\label{chap:conclusao}
+
+Este trabalho permitiu avaliar a eficácia de diferentes classificadores supervisionados no conjunto de dados biomecânicos \textit{Vertebral Column}. Os resultados experimentais demonstraram que o algoritmo KNN (K=1) apresentou o desempenho superior de forma consistente, especialmente quando utilizado com a distância Euclidiana ($m=2$) ou ordens superiores de Minkowski.
+
+A análise do classificador MDC revelou que a utilização da mediana (MDC Robusto) em vez da média para a definição dos centróides resulta em ganhos de acurácia, o que é coerente com a observação de que os atributos do dataset não seguem uma distribuição normal e apresentam assimetrias. O classificador MAXCO, embora teoricamente interessante, não se mostrou competitivo para este problema específico, sugerindo que a direção dos vetores de atributos não é tão informativa quanto a sua magnitude e posição relativa para distinguir as patologias da coluna.
+
+Observou-se também que o desempenho de todos os modelos é sensível à quantidade de dados disponíveis para treinamento, com a acurácia média subindo gradualmente de 20\% para 80\% de treinamento. Por fim, a confusão entre as classes Hérnia e Normal destaca a complexidade biomecânica destas condições, indicando que novos atributos ou técnicas de engenharia de características poderiam ser explorados em trabalhos futuros para melhorar a separabilidade nestas regiões do espaço de atributos.

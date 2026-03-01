@@ -1,0 +1,116 @@
+\section{Resultados e Discussão}
+\label{chap:resultados}
+
+Nesta seção, apresentam-se os resultados obtidos através dos experimentos definidos na metodologia. A análise inicia-se pela caracterização estatística das variáveis para fundamentar as decisões de modelagem, seguida pela avaliação comparativa do desempenho dos classificadores sob diferentes condições de treinamento e métricas de similaridade.
+
+\subsection{Análise Exploratória e de Normalidade}
+A inspeção das densidades condicionais (Figura~\ref{fig:densidades}) revela que a classe Espondilolistese possui uma separabilidade visual superior em relação às demais, particularmente nos atributos \textit{degree\_spondylolisthesis} e \textit{pelvic\_incidence}. Observou-se que a maioria dos atributos biomecânicos compartilha uma escala de magnitude similar, facilitando a aplicação de medidas de distância sem a necessidade obrigatória de normalização por variância, exceto para o grau de espondilolistese, cujos valores extremos para a classe patológica tendem a distanciar consideravelmente seu centróide das classes Hérnia e Normal.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.8\textwidth]{figuras/densidades_condicionais.png}
+\caption{Densidades condicionais dos atributos por classe (p(x|w)). }
+\label{fig:densidades}
+\end{figure}
+
+Quanto à normalidade, os resultados do teste de Shapiro-Wilk na Tabela~\ref{tab:shapiro} indicam p-valores extremamente baixos, levando à rejeição da hipótese nula de gaussianidade para todos os atributos. Contudo, a análise visual dos gráficos Q-Q (Figura~\ref{fig:qqplots}) demonstra uma tendência central razoavelmente alinhada à distribuição normal, com discrepâncias concentradas nas caudas. Essa observação sugere que, embora não sejam "perfeitamente" normais, os dados mantêm uma estrutura de dispersão que justifica o uso de modelos baseados em centróides e distâncias Euclidianas, ainda que versões robustas (como o MDC via mediana) possam oferecer vantagens em termos de estabilidade.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.8\textwidth]{figuras/qqplots.png}
+\caption{Gráficos Q-Q para avaliação de normalidade global. }
+\label{fig:qqplots}
+\end{figure}
+
+\begin{table}[h!]
+\centering
+\caption{Resultados do teste de normalidade Shapiro-Wilk.}
+\label{tab:shapiro}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Atributo} & \textbf{Estatística W} & \textbf{p-valor} & \textbf{H0 (Normal)} \\
+\midrule
+pelvic\_incidence & 0.971 & $7.13 \times 10^{-6}$ & Rejeitada \\
+pelvic\_tilt & 0.966 & $1.32 \times 10^{-6}$ & Rejeitada \\
+lumbar\_lordosis\_angle & 0.972 & $9.22 \times 10^{-6}$ & Rejeitada \\
+sacral\_slope & 0.964 & $5.88 \times 10^{-7}$ & Rejeitada \\
+pelvic\_radius & 0.989 & $1.66 \times 10^{-2}$ & Rejeitada \\
+degree\_spondylolisthesis & 0.697 & $2.90 \times 10^{-23}$ & Rejeitada \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Desempenho Geral e Influência da Métrica de Minkowski}
+A Tabela~\ref{tab:summary_80_20} sumariza o desempenho médio para a configuração de 80\% de treinamento, explorando a sensibilidade do KNN à ordem $m$ da distância de Minkowski. Observa-se que os melhores resultados foram obtidos para $m=2.0$ (distância Euclidiana) e $m=1.5$, enquanto ordens fracionárias ($m < 1$) degradaram o desempenho.
+
+\begin{table}[h!]
+\centering
+\caption{Acurácia média e desvio padrão para a divisão 80/20 (100 rodadas).}
+\label{tab:summary_80_20}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Classificador} & \textbf{Acurácia Média} & \textbf{Desvio Padrão} & \textbf{Tempo Treino (ms)} \\
+\midrule
+KNN ($m=2.00$) & 0.7845 & 0.0281 & 0.0026 \\
+KNN ($m=1.50$) & 0.7845 & 0.0297 & 0.0027 \\
+KNN ($m=2.50$) & 0.7837 & 0.0273 & 0.0026 \\
+KNN ($m=1.00$) & 0.7787 & 0.0291 & 0.0028 \\
+MDC Robusto    & 0.7729 & 0.0340 & 0.1260 \\
+KNN ($m=0.67$) & 0.7658 & 0.0272 & 0.0028 \\
+MDC            & 0.7606 & 0.0451 & 0.0657 \\
+KNN ($m=0.50$) & 0.7568 & 0.0282 & 0.0039 \\
+MAXCO          & 0.7130 & 0.0520 & 0.0497 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A superioridade da distância Euclidiana ($m=2$) em relação à distância de Manhattan ($m=1$) traz implicações importantes sobre a geometria do dataset \textit{Vertebral Column}. Enquanto a distância $m=1$ assume uma estrutura de vizinhança em "quarteirão", com fronteiras de decisão alinhadas aos eixos dos atributos, a métrica Euclidiana ($m=2$) favorece agrupamentos circulares ou esféricos (hipersferas). O fato de $m=2$ apresentar melhor acurácia sugerre que os clusters biomecânicos no espaço de atributos tendem a ser isotrópicos, onde a similaridade é melhor capturada pela magnitude vetorial direta do que por somas de diferenças absolutas coordenadas. Ordens $m < 1$ produzem "esferas unitárias" côncavas que tendem a superestimar pequenas variações dimensionais, resultando em menor robustez frente ao ruído inerente às medições radiográficas.
+
+Para aprofundar a análise do MDC, calculou-se a matriz de distâncias Euclidianas entre os centróides das classes. A Tabela~\ref{tab:mdc_distances} confirma que a classe Espondilolistese é a mais isolada, enquanto Hérnia e Normal possuem uma distância mútua reduzida, o que explica a maior taxa de confusão entre elas reportada nas seções seguintes.
+
+\begin{table}[h!]
+\centering
+\caption{Distância Euclidiana entre os centróides das classes (MDC).}
+\label{tab:mdc_distances}
+\begin{tabular}{lccc}
+\toprule
+ & \textbf{Hérnia} & \textbf{Normal} & \textbf{Espondilolistese} \\
+\midrule
+\textbf{Hérnia} & 0.00 & 18.24 & 54.31 \\
+\textbf{Normal} & 18.24 & 0.00 & 42.15 \\
+\textbf{Espondilolistese} & 54.31 & 42.15 & 0.00 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Efeito da Proporção de Treinamento}
+A variação da acurácia em função do volume de treinamento (Tabela~\ref{tab:split_comparison}) revela comportamentos distintos entre os algoritmos. Nota-se que aumentar ou diminuir a proporção de treino afeta mais intensamente o KNN e o MDC do que o MAXCO. O Classificador de Máxima Correlação demonstrou-se notavelmente insensível ao tamanho da amostra, mantendo uma acurácia estável porém subpar (próxima a 0.72). Isso ocorre provavelmente porque o MAXCO utiliza a orientação vetorial (similaridade de cosseno), que simplifica a amostra para um único valor escalar. Assim, com poucos dados já se extrai a informação de "direção" predominante da classe, mas essa simplificação ignora a magnitude e a dispersão que seriam necessárias para uma classificação mais precisa neste domínio.
+
+\begin{table}[h!]
+\centering
+\caption{Comparativo da acurácia média por porcentagem de treinamento.}
+\label{tab:split_comparison}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Classificador} & \textbf{20\% Treino} & \textbf{30\% Treino} & \textbf{50\% Treino} & \textbf{70\% Treino} & \textbf{80\% Treino} \\
+\midrule
+KNN ($m=2.00$) & 0.7845 & 0.7949 & 0.8065 & 0.8121 & 0.8210 \\
+KNN ($m=1.00$) & 0.7787 & 0.7864 & 0.7976 & 0.8056 & 0.8158 \\
+KNN ($m=0.50$) & 0.7568 & 0.7603 & 0.7621 & 0.7654 & 0.7682 \\
+MDC Robusto    & 0.7729 & 0.7773 & 0.7855 & 0.7866 & 0.7861 \\
+MAXCO          & 0.7130 & 0.7192 & 0.7234 & 0.7220 & 0.7221 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\subsection{Matriz de Confusão e Análise de Erros}
+As matrizes de confusão do KNN (Figura~\ref{fig:confusion_matrix}) corroboram a análise de distâncias de centróides. O modelo apresenta excelente performance na detecção de Espondilolistese devido à sua distância no espaço de atributos. Entretanto, as confusões entre Normal e Hérnia persistem mesmo no melhor cenário, sugerindo que estas classes possuem regiões de alta sobreposição biomecânica, exigindo possivelmente atributos adicionais ou modelos de maior complexidade para uma separação completa.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.8\textwidth]{figuras/matriz_confusao_knn.png}
+\caption{Matrizes de confusão para o melhor e pior caso do classificador KNN. }
+\label{fig:confusion_matrix}
+\end{figure}

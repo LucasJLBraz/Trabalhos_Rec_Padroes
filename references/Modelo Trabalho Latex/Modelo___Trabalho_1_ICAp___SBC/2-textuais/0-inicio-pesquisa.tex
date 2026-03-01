@@ -1,0 +1,108 @@
+\chapter{Início da Pesquisa}
+
+O objetivo deste trabalho é desenvolver um modelo robusto de classificação de \gls{FA} utilizando os indicadores de convergência gerados pelo processo de decomposição tensorial \gls{BTD} aplicado a sinais de \gls{ECG}. O modelo proposto visa aprimorar a acurácia e a rapidez no diagnóstico de \gls{FA}, auxiliando profissionais de saúde no reconhecimento precoce da condição, possibilitando intervenções mais rápidas e assertivas.
+
+Logo, neste capítulo, são apresentados pesquisas e ferramentas necessárias para o desenvolvimento do Trabalho de Conclusão de Curso, assim, a Seção \ref{sec:artigo} apresenta artigos e trabalhos relacionados, e uma breve discussão sobre os mesmos, a Seção \ref{sec:ferramentas} apresenta as tecnologias previstas para o desenvolvimento.
+
+
+% \section{Trabalhos relacionados}
+% \label{sec:artigo}
+
+% Um trabalho apresenta um estudo comparativo de diversas técnicas de aprendizado de máquina, dentre elas \gls{XGBoost}, \gls{SVM}, \gls{DT}, para a detecção de \gls{FA} de curto prazo. Como base de dados é utilizada as bases MIT-BHI \gls{AFDB}, MIT-BIH \gls{LTAFDB}, MIT-BIH Arrhythmia database (MITDB) e MIT-BIH \gls{NSRDB}. O trabalho, propõe utilizar sete atributos no domínio do tempo de segmentos do \gls{RRI}. Durante a pesquisa é concluído que modelos baseados em \textit{ensemble} apresentam um melhor desempenho, e o melhor caso é encontrado ao utilizar o modelo AdaBoost alcançando \gls{SE} de 87.58\% e \gls{SPE} de 89.27\%. \cite{jahanShorttermAtrialFibrillation2022}
+
+% Ao invés de utilizar atributos numéricos como atributo para realizar a classificação de \gls{FA}, é proposto que a função de densidade de probabilidade do \gls{RRI} de um sinal de \gls{ECG} carrega informação suficiente para realizar a classificação. Assim, utilizando as bases MIT-BHI \gls{AFDB}, MIT-BIH \gls{LTAFDB}, e MIT-BIH \gls{NSRDB} e um modelo baseado em \gls{SVM} foi possível construir um histograma dos \gls{RRI} e alcançar uma \gls{acc}, \gls{SPE} e \gls{SPE} de  0.9697, 0.9524 e 0.9994 respectivamente \cite{duanAccurateDetectionAtrial2022}.
+
+% \cite{hirschAtrialFibrillationDetection2021} propõe que utilizar apenas atributos provindos do \gls{RRI}, e extração de atributos do \gls{AA} utilizando a Decomposição Empírica de Modos (EDM), para realizar a classificação de \gls{FA}. Para isso, é utilizada a base de dados MIT-BHI \gls{AFDB} onde é realizado a extração de diversos atributos, em seguida modelos baseados em \textit{ensemble} e \gls{DT} foram testados, alcançando \gls{acc}, \gls{SE}, \gls{SPE} de 95,9, 96,1, 97,4, respectivamente.
+
+% Modelos baseados em aprendizado profundo também são bastante utilizados para a classificação de \gls{FA}, \cite{andersenDeepLearningApproach2019} apresenta um modelo baseado em \gls{RNN}. O modelo proposto possui camadas de convolução que fazem o papel de extração de atributos dos \gls{RRI} e, com validação cruzada, consegue alcançar uma \gls{SPE} de 98.96\% e \gls{SE} de 86.04\%.
+
+% \cite{aldughayfiqDeepLearningApproach2023} propõe que seja possível realizar a extração de características locais de um sinal de \gls{ECG} e PPG ao utilizar uma CNN unidimensional, e em seguida, aproveitar as informações contextuais do sinal ao utilizar uma \gls{RNN}, nominalmente, uma Bi-LSTM. Com o modelo hibrido o autor conseguiu uma \gls{acc} de 95.0\% e \gls{pre} de 0.85.
+
+
+% Para entender os mecanismos por trás da \gls{FA} é necessária realizar a extração da \gls{AA} do \gls{ECG} para uma análise precisa. \cite{rietaAtrialActivityExtraction2004} demostra que é possível realizar essa extração utilizando \gls{BSS}, com a técnica \gls{ICA} e identificar a fonte da \gls{AA} por meio de uma análise baseada na curtose dos sinais reconstruídos. 
+
+% Pela primeira vez, \cite{ribeiroAtrialSignalExtraction2015} apresenta um comparativo de técnicas tensoriais e técnicas baseadas em matriz para a extração de \gls{AA}, o autor resulta que \gls{BTD} supera técnicas baseadas em matriz em situações onde ruido está presente, como sinais reais. 
+
+% A estabilidade temporal da técnica Hankel-\gls{BTD} é testada, reforçando o método como uma ótima forma de realizar a extração, superando técnicas matriciais \cite{deoliveiraTemporalStabilityBlock2018}.
+
+
+% Em sua dissertação, \cite{cardosoDETECCAOFIBRILACAOATRIAL2024} traz pela primeira vez o uso dos parâmetros de convergência da \gls{BTD}, juntamente do histograma de \gls{RRI}, como atributos para classificação \gls{FA} em sinais de \gls{ECG}. A pesquisa testa diversos algoritmos \textit{ensemble}, e encontra que o melhor é o \gls{LightGBM} com acurácia de 97.04\%, \gls{SE} 97.44\% e \gls{SPE} de 97.02\%. Apesar do bom resultado, o trabalho não utiliza técnicas de aprendizado profundo, que podem melhorar extrair mais informações dos resultados. Além disso, uma parte significativa dos parâmetros de convergência da \gls{BTD} são vetores, mas o autor utiliza apenas o último valor, deixando de lado muita informação descriminatória em potencial.
+
+
+\section{Trabalhos relacionados}
+\label{sec:artigo}
+
+Vários estudos utilizam diferentes técnicas de aprendizado de máquina para a detecção de \gls{FA} de curto prazo. Por exemplo, \cite{jahanShorttermAtrialFibrillation2022} compara \gls{XGBoost}, \gls{SVM} e \gls{DT} utilizando as bases MIT-BHI \gls{AFDB}, MIT-BIH \gls{LTAFDB}, MIT-BIH Arrhythmia Database (MITDB) e MIT-BIH \gls{NSRDB}. O trabalho utiliza sete atributos temporais dos segmentos de \gls{RRI} e conclui que modelos \textit{ensemble} apresentam melhor desempenho, sendo o AdaBoost o mais eficaz, com \gls{SE} de 87,58\% e \gls{SPE} de 89,27\%.
+
+Em outra abordagem, ao invés de utilizar apenas atributos numéricos, propõe-se que a função densidade de probabilidade do \gls{RRI} de um sinal de \gls{ECG} possa conter informações suficientes para a classificação de \gls{FA}. Utilizando as bases \gls{AFDB}, \gls{LTAFDB} e \gls{NSRDB}, \cite{duanAccurateDetectionAtrial2022} constrói um histograma dos \gls{RRI} e aplica um modelo baseado em \gls{SVM}, obtendo \gls{acc}, \gls{SPE} e \gls{SE} de 96,97\%, 95,24\% e 99,94\%, respectivamente.
+
+\cite{hirschAtrialFibrillationDetection2021} explora o uso de atributos derivados do \gls{RRI} combinados com a extração de atributos do \gls{AA} por meio da Decomposição Empírica de Modos. Utilizando a base \gls{AFDB}, o estudo extrai diversos atributos e testa modelos \textit{ensemble} e \gls{DT}, atingindo \gls{acc}, \gls{SE} e \gls{SPE} de 95,9\%, 96,1\% e 97,4\%, respectivamente.
+
+Características baseadas em variabilidade cardíaca são bastante bastantes utilizadas para classificação de \gls{FA}, logo, utilizando atributos que indicam a irregularidade dos intervalos de tempo entre batimentos, foi possível aplicar \gls{SVM} para realizar detecção de episódios de \gls{FA} em sinais de longa duração, com uma \gls{acc}, \gls{SE}, \gls{SPE} de 98,6\%, 98,9\% e 98,4\% respectivamente \cite{czabanskiDetectionAtrialFibrillation2020}.
+
+Modelos de aprendizado profundo também são explorados para classificação de \gls{FA}. \cite{andersenDeepLearningApproach2019} apresenta um modelo de \gls{RNN} com camadas de convolução para extração de atributos dos \gls{RRI}, que, com validação cruzada, alcança \gls{SPE} de 98,96\% e \gls{SE} de 86,04\%.
+
+Em outro estudo, \cite{aldughayfiqDeepLearningApproach2023} propõe uma CNN unidimensional para extração de características locais do sinal de \gls{ECG} e PPG, seguida por uma \gls{RNN} (Bi-LSTM) para captura de informações contextuais. Esse modelo híbrido alcança uma \gls{acc} de 95,0\% e \gls{pre} de 85\%.
+
+Para uma análise mais detalhada dos mecanismos de \gls{FA}, a extração da \gls{AA} do \gls{ECG} é essencial. Assim, \cite{rietaAtrialActivityExtraction2004} mostra que a técnica \gls{BSS} com \gls{ICA} permite identificar a fonte de \gls{AA} com uma análise baseada na curtose dos sinais reconstruídos.
+
+\cite{ribeiroAtrialSignalExtraction2015} apresenta um estudo comparativo entre técnicas tensoriais e matriciais para extração de \gls{AA}, concluindo que o \gls{BTD} supera métodos matriciais, especialmente na presença de ruído.
+
+Por fim, \cite{deoliveiraTemporalStabilityBlock2018} testa a estabilidade temporal da técnica Hankel-\gls{BTD}, reforçando sua eficácia como método para extração de \gls{AA} em sinais reais e superando técnicas tradicionais baseadas em matrizes.
+
+Em sua dissertação, \cite{cardosoDETECCAOFIBRILACAOATRIAL2024} explora o uso de parâmetros de convergência do \gls{BTD} e histogramas de \gls{RRI} como atributos para classificação de \gls{FA} em sinais de \gls{ECG}. Testando diversos algoritmos \textit{ensemble}, a pesquisa identifica o \gls{LightGBM} como o mais eficaz, com acurácia de 97,04\%, \gls{SE} de 97,44\% e \gls{SPE} de 97,02\%. No entanto, o estudo não utiliza aprendizado profundo, que poderia permitir maior extração de informações. Além disso, embora vários parâmetros de convergência do \gls{BTD} sejam vetores, o trabalho considera apenas o último valor, perdendo informação potencialmente discriminatória.
+
+
+
+\section{Ferramentas e tecnologias necessárias}
+\label{sec:ferramentas}
+
+Para o desenvolvimento do presente trabalho, serão utilizadas as bases de dados MIT-BHI \gls{AFDB}, MIT-BIH \gls{LTAFDB} e MIT-BIH \gls{NSRDB} \cite{goldberger2000physiobank}. Estas bases contêm sinais de \gls{ECG} de pessoas com \gls{FA} e \gls{RSN}, e foram escolhidas por serem amplamente utilizadas em pesquisas envolvendo arritmias. Cada gravação possui anotações sobre seus meta-dados, como a taxa de amostragem, derivações e anotações clínicas, incluindo a presença de batimentos cardíacos e a marcação de todo o complexo QRS. Além disso, as condições cardíacas associadas a cada instante na gravação são documentadas \cite{goldberger2000physiobank}.
+
+Para processar os sinais de \gls{ECG} e extrair os intervalos \gls{RRI}, será utilizada a biblioteca WFDB, implementada em Python \cite{xieWaveformDatabaseSoftware2021}. Em seguida, para realizar a decomposição tensorial, será utilizado o \textit{software} MATLAB \cite{MATLAB}, em conjunto com a \textit{toolbox} Tensorlab \cite{vervlietTensorlab30Numerical2016}.
+
+Com o sinal processado, serão aplicadas diversas técnicas de \gls{ML} para realizar a classificação. Primeiramente, técnicas clássicas de aprendizado supervisionado serão utilizadas, incluindo:
+
+\begin{itemize}
+    % \item \gls{DT} \cite{breimanClassificationRegressionTrees2017}.
+    \item \gls{KNN} \cite{kramerKNearestNeighbors2013}.
+    \item \textit{Random Forest} \cite{breimanRandomForests2001a}.
+    \item \gls{XGBoost} \cite{10.1145/2939672.2939785}.
+    \item \gls{LightGBM} \cite{keLightGBMHighlyEfficient2017}.
+\end{itemize}
+
+Adicionalmente, serão exploradas técnicas de aprendizado profundo. Para isso, utilizaremos a biblioteca e framework TensorFlow e Keras \cite{tensorflow2015-whitepaper}, com foco em modelos que trabalham bem com sinais temporais, como as \gls{RNN}s. Modelos como \gls{LSTM}, BI-\gls{LSTM} ou GRUs serão empregados devido à sua eficácia em capturar dependências temporais nos dados de \gls{ECG}.
+
+
+% \section{Ferramentas e tecnologias necessárias}
+% \label{sec:ferramentas}
+
+% Para o desenvolvimento do presente trabalho, será necessário, em primeira instância, bases de dados de \gls{ECG} que contenham sinais de pessoas com \gls{FA} e \gls{RSN}, para isso, serão utilizadas as bases MIT-BHI \gls{AFDB}, MIT-BIH \gls{LTAFDB} e MIT-BIH \gls{NSRDB} \cite{goldberger2000physiobank}. 
+
+% Estas bases foram escolhidas por serem amplamente utilizadas em pesquisas envolvendo arritmias. Cada gravação possui anotações sobre seus meta-dados, contendo informações sobre a taxa de amostragem, derivações e anotações clínicas, como a presença de batimentos cardíacos e a marcação de todo o complexo QRS. As condições cardíacas associadas a cada instante na gravação também são documentadas \cite{goldberger2000physiobank}.
+
+% Para processar os sinais de \gls{ECG} e extrair os intervalos \gls{RRI} será utilizado a biblioteca WFDB na linguagem Python \cite{xieWaveformDatabaseSoftware2021}. Em seguida, para realizar a decomposição tensorial será utilizado o \textit{software} MATLAB \cite{MATLAB}, juntamente da \textit{toolbox} Tensorlab \cite{vervlietTensorlab30Numerical2016}.
+
+% Com o sinal processado, diversas técnicas de \gls{ML} serão aplicadas para realizar a classificação, ao tomar técnicas clássicas serão utilizadas:
+
+% \begin{itemize}
+%     % \item \gls{SVM} \cite{cortes1995support}.
+    
+%     \item \gls{DT}\cite{breimanClassificationRegressionTrees2017}.
+    
+%     \item \gls{KNN} \cite{kramerKNearestNeighbors2013}.
+    
+%     % \item \gls{MLP} \cite{popescu2009multilayer}.
+    
+%     \item \textit{Random Forest} \cite{breimanRandomForests2001a}.
+    
+%     \item \gls{XGBoost} \cite{10.1145/2939672.2939785}.
+    
+%     \item \gls{LightGBM} \cite{keLightGBMHighlyEfficient2017}.
+% \end{itemize}
+
+
+% Também planeja-se utilizar técnicas de aprendizado profundo, para isso, será utilizado a biblioteca e framework TensorFlow e Keras \cite{tensorflow2015-whitepaper}. Os modelos a serem utilizados são modelos que conseguem trabalhar bem com sinais temporais, para isso \gls{RNN} serão utilizadas, nominalmente, modelos como \gls{LSTM}, BI-LSTM ou GRUs.
+
+
+

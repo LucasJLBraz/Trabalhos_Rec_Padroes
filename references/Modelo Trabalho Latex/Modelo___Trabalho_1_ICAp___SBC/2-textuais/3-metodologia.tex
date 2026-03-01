@@ -1,0 +1,175 @@
+\section{Metodologia}
+\label{chap:metodologia}
+
+\subsection{Análise exploratória e preparação dos dados}
+O conjunto de dados \textit{Real Estate Valuation} (UCI) foi organizado em matriz de atributos $\mathbf{X}$ e vetor-alvo $\mathbf{y}$ , correspondente ao preço por unidade de área. A inspeção inicial incluiu estatísticas descritivas, verificação de valores ausentes, não foram identificados dados faltantes, análise de histogramas univariados para avaliar assimetria e presença de caudas, além de uma análise bivariada com base na matriz de correlação entre atributos e alvo. Constatou-se baixa associação linear entre a data de transação e o preço, o que motivou testes preliminares com e sem a utilização dessa variável. Optou-se, contudo, por mantê-la nas análises finais a fim de preservar a comparabilidade com o estudo de referência. 
+
+\subsection{Esquemas de normalização e experimentos de controle}
+Foram conduzidos quatro experimentos paralelos para avaliar o efeito do pré-processamento das entradas. Salvo indicação em contrário, apenas $\mathbf{X}$ foi transformada e $\mathbf{y}$ permaneceu na escala original. Os esquemas investigados foram: (i) sem normalização; (ii) padronização por z-score (centralização pela média e escala pelo desvio-padrão); (iii) transformação \textit{min--max} (reescala para $[0,1]$); e (iv) normalização robusta por mediana e intervalo interquartil (IQR). Todas as transformações foram ajustadas exclusivamente nos dados de treino de cada \textit{fold} e aplicadas aos conjuntos de validação e teste, de modo a evitar vazamento de informação. 
+O PS emprega ativação sigmoide na saída, cujo suporte é $(0,1)$. Para compatibilizar a faixa do alvo $y\in [8,110]$ com essa saída, adotamos \textbf{normalização \textit{min--max} apenas para $\mathbf{y}$ no treinamento/validação do PS}. As predições do PS foram sempre revertidas para a escala original antes de calcular métricas e gerar gráficos. Nos demais modelos, $\mathbf{y}$ permaneceu na escala original.
+
+
+
+\subsection{Protocolo de treinamento, validação e teste}
+Os dados foram particionados uma única vez em treino/teste (\SI{66}{\percent}/\SI{34}{\percent}), como no estudo de referência. A seleção de hiperparâmetros ocorreu \emph{exclusivamente} no conjunto de treinamento, por Validação Cruzada (CV) com $k=5$. Para cada configuração, o modelo foi ajustado nos \textit{folds} de treino e avaliado nos \textit{folds} de validação, com as normalizações estimadas apenas nos dados de treino de cada partição. Ao término desse processo, a configuração com melhor desempenho médio em validação foi selecionada. Em seguida, o modelo final foi reestimado utilizando todo o conjunto de treinamento e, por fim, avaliado no conjunto de teste retido. Todas as partições e inicializações foram conduzidas com sementes fixas, assegurando a plena reprodutibilidade dos resultados. Além das médias de CV, agregamos predições \emph{out-of-fold} (OOF) para diagnóstico global de resíduos em treino, sem uso do conjunto de teste.
+
+\subsection{Métricas e procedimentos de avaliação}
+A aderência dos modelos foi examinada por meio de gráficos de dispersão entre valores observados e preditos (treinamento e teste), acompanhados dos respectivos coeficientes de correlação linear. 
+As métricas primárias de desempenho consideradas foram Hit@10, Hit@20, $R^2$ e RMSE. Adicionalmente, reportamos o RMSE normalizado pelo preço médio (RMSE/Preço).
+
+\paragraph{Definição formal do Hit@$k$.} 
+Para cada amostra $i$, dizemos que houve acerto relativo a $k$ se
+\begin{equation}
+\frac{|y_i - \hat{y}_i|}{y_i} \le \frac{k}{100}.
+\end{equation}
+O indicador Hit@$k$ é a fração de acertos no conjunto considerado:
+\begin{equation}
+\text{Hit@}k = \frac{1}{n}\sum_{i=1}^{n} \mathbf{1}\!\left( \frac{|y_i - \hat{y}_i|}{y_i} \le \tfrac{k}{100} \right),
+\end{equation}
+onde $\mathbf{1}(\cdot)$ é a função indicadora.
+
+Os resíduos de treino dos modelos selecionados foram analisados via histograma e teste de Shapiro--Wilk (nível $\alpha=0{,}05$). Sempre que observada discrepância em relação à gaussianidade (caudas pesadas/assimetria), discutimos implicações para inferência e escolha de métricas.
+
+\subsection{Critério de seleção de modelos}
+Para escolher um ``melhor'' por família (MQ, PS, MLP-1C, MLP-2C e \emph{benchmarks}), 
+adotamos critério lexicográfico: 
+\textbf{Hit@10 (maior)} $\to$ \textbf{Hit@20 (maior)} $\to$ $\mathbf{R^2}$ (maior) $\to$ \textbf{RMSE (menor)}. 
+O critério é aplicado uniformemente em todas as buscas e relatórios.
+
+\subsection{Espaços de hiperparâmetros e procedimentos de busca}
+A seleção de hiperparâmetros foi conduzida por meio de \textit{random search}, com orçamento de 60 testes, aplicado às redes neurais e ao PS. Para o MQ, empregou-se \textit{grid search}. Em todos os casos, a busca foi realizada com validação cruzada $k=5$, com as normalizações estimadas exclusivamente a partir dos dados de treinamento.
+
+
+% Please add the following required packages to your document preamble:
+% \usepackage{multirow}
+% \usepackage{graphicx}
+\begin{table}[h]
+\caption{Espaços de hiperparâmetros e procedimentos de busca utilizados nos modelos.}
+\label{tab:hiperparams-all}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{llll}
+\hline
+\textbf{Modelo} &
+  \textbf{Hiperparâmetros} &
+  \textbf{Valores considerados} &
+  \textbf{Procedimento de busca} \\ \hline
+\multirow{6}{*}{\textbf{MLP-1C}} &
+  Neurônios na camada oculta &
+  4, 8, 16, 32, 64, 128, 256, 512 &
+  \multirow{6}{*}{\begin{tabular}[c]{@{}l@{}}Random Search\\ (60 amostras)\end{tabular}} \\
+ & Função de ativação     & \texttt{sigmoid}, \texttt{tanh}, \texttt{relu}, \texttt{leaky\_relu} &  \\
+ & Épocas                 & 100, 150, 200, 300                                                   &  \\
+ & Taxa de aprendizado    & $10^{-3}, 5\cdot10^{-3}, 10^{-2}$                                    &  \\
+ & Normalização           & none, zscore, minmax, iqr                                            &  \\
+ & Critério de seleção    & desempenho médio em CV (5 folds)                                     &  \\ \hline
+\multirow{6}{*}{\textbf{MLP-2C}} &
+  Neurônios na 1ª camada &
+  4, 8, 16, 32, 64, 128, 256, 512 &
+  \multirow{6}{*}{\begin{tabular}[c]{@{}l@{}}Random Search \\ (60 amostras)\end{tabular}} \\
+ & Neurônios na 2ª camada & 4, 8, 16, 32, 64, 128, 256, 512                                      &  \\
+ & Função de ativação     & \texttt{sigmoid}, \texttt{tanh}, \texttt{relu}, \texttt{leaky\_relu} &  \\
+ & Épocas                 & 100, 150, 200, 300                                                   &  \\
+ & Taxa de aprendizado    & $10^{-3}, 5\cdot10^{-3}, 10^{-2}$                                    &  \\
+ & Normalização           & none, zscore, minmax, iqr                                            &  \\ \hline
+\multirow{4}{*}{\textbf{PS (PS)}} &
+  Épocas &
+  100, 150, 200, 300 &
+  \multirow{4}{*}{\begin{tabular}[c]{@{}l@{}}Random Search \\ (60 amostras)\end{tabular}} \\
+ & Taxa de aprendizado    & $10^{-3}, 5\cdot10^{-3}, 10^{-2}$                                    &  \\
+ & Normalização           & none, zscore, minmax, iqr                                            &  \\
+ & Ativação               & sigmoide (saída compatível com min--max do alvo)                     &  \\ \hline
+\multirow{3}{*}{\textbf{MQ (Ridge)}} &
+  Parâmetro de regularização ($\lambda$) &
+  0.0, $10^{-4}$, $10^{-3}$, $10^{-2}$, $5\cdot10^{-2}$, $10^{-1}$, 0.5, 1.0, 2.0, 5.0, 10.0 &
+  \multirow{3}{*}{Grid Search} \\
+ & Normalização           & none, zscore, minmax, iqr                                            &  \\
+ & Critério de seleção    & desempenho médio em CV (5 folds)                                     &  \\ \hline
+\end{tabular}%
+}
+\end{table}
+
+\subsection{Modelos de referência e comparação}
+
+Como \emph{benchmark}, ajustamos Support Vector Regression (SVR), Random Forest e Gradient Boosting (\texttt{scikit-learn}) sob o mesmo protocolo de particionamento, normalização das entradas e validação cruzada do conjunto de treinamento, com avaliação final no teste retido pelas mesmas métricas. 
+Houve uma busca manual dos hiperparâmetros para esses \emph{benchmarks}; os valores foram \textbf{pré-fixados} e mantidos constantes em toda a avaliação.
+
+\begin{table}[h]
+\centering
+\caption{Modelos e hiperparâmetros selecionados.}
+\label{tab:modelos_hiperparam}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Modelo} & \textbf{Pré-processamento} & \textbf{Hiperparâmetros} \\ \midrule
+Random Forest & \texttt{StandardScaler} &
+\begin{tabular}[c]{@{}l@{}}
+n\_estimators=100; max\_depth=None; max\_features=1.0; \\
+min\_samples\_split=2; min\_samples\_leaf=1; bootstrap=True; \\
+criterion='squared\_error'; random\_state=42; n\_jobs=-1
+\end{tabular} \\ \midrule
+
+Gradient Boosting & \texttt{RobustScaler} &
+\begin{tabular}[c]{@{}l@{}}
+n\_estimators=100; learning\_rate=0.1; max\_depth=3; subsample=1.0; \\
+loss='squared\_error'; criterion='friedman\_mse'; alpha=0.9; \\
+random\_state=42; tol=1e-4; validation\_fraction=0.1
+\end{tabular} \\ \midrule
+
+SVR (RBF) & \texttt{RobustScaler} &
+\begin{tabular}[c]{@{}l@{}}
+kernel='rbf'; C=1.0; epsilon=0.1; gamma='scale'; \\
+tol=1e-3; max\_iter=-1; shrinking=True
+\end{tabular} \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
+
+
+\subsection{Implementação e Reprodutibilidade}
+\label{sec:implementacao_reprodutibilidade}
+
+Os modelos principais (MQ, PS, MLP-1C e MLP-2C) foram implementados em Python com rotinas matriciais de baixo nível, o que permitiu controle direto sobre inicialização, função de custo e retropropagação. Os \emph{benchmarks} comparativos foram ajustados com \texttt{scikit-learn}. Todo o material necessário para reprodução dos experimentos, incluindo análises exploratórias (EDA), variações de normalização e geração de figuras, encontra-se disponível em repositório público no GitHub:
+\begin{center}
+    \url{https://github.com/LucasJLBraz/Trabalhos_IC_Aplicada}
+\end{center}
+As versões de Python e bibliotecas, assim como as sementes aleatórias utilizadas, estão registradas nos notebooks e no arquivo de configuração do projeto.
+
+A Tabela~\ref{tab:estrutura_arquivos_tc1} resume os arquivos e diretórios mais relevantes para a reprodutibilidade do Trabalho~1.
+
+\begin{table}[h!]
+\centering
+\caption{Arquivos e diretórios relevantes para a reprodutibilidade do Trabalho 1.}
+\label{tab:estrutura_arquivos_tc1}
+\begin{tabular}{p{5.5cm} p{8cm}}
+\toprule
+\textbf{Caminho} & \textbf{Descrição} \\
+\midrule
+\texttt{README.md} & Instruções detalhadas para configuração do ambiente e execução dos experimentos. \\
+\texttt{notebooks/TC1/} & Diretório principal contendo os Jupyter Notebooks dos experimentos. \\
+\hspace{1em}\texttt{MQO.ipynb} & Experimento de Regressão Linear por Mínimos Quadrados (MQ). \\
+\hspace{1em}\texttt{perceptron-...ipynb} & Experimento com o modelo Perceptron de Regressão. \\
+\hspace{1em}\texttt{MLP\_H1.ipynb} & Experimento com MLP de uma camada oculta. \\
+\hspace{1em}\texttt{MLP\_H2.ipynb} & Experimento com MLP de duas camadas ocultas. \\
+\texttt{trabalho\_ic\_aplicada/} & Pacote Python que contém a lógica dos modelos e funções de suporte. \\
+\hspace{1em}\texttt{models/ridge\_reg....py} & Implementação da Regressão Linear (MQ). \\
+\hspace{1em}\texttt{models/reg\_perc....py} & Implementação do Perceptron para Regressão. \\
+\hspace{1em}\texttt{models/reg\_mlp.py} & Implementação da MLP para Regressão. \\
+\hspace{1em}\texttt{models/aux.py} & Funções auxiliares para métricas (REQM, $R^2$), validação cruzada e geração de gráficos. \\
+\texttt{results/TC1/} & Diretório destinado às saídas dos experimentos (histogramas de resíduos, gráficos de dispersão, etc.). \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+\subsection{Ameaças à validade e controles}
+Toda análise empírica está sujeita a limitações que podem comprometer a validade interna e externa dos resultados. No presente trabalho, destacamos algumas ameaças relevantes e as estratégias adotadas para mitigá-las, para assegurar maior robustez às conclusões.  
+
+\begin{enumerate}
+    \item \textbf{Tamanho amostral moderado} (\(n=414\)), sujeito à influência de pontos extremos.
+    \item \textbf{Heterocedasticidade e caudas pesadas}, que podem afetar a confiabilidade das inferências.
+    \item \textbf{Colinearidade entre atributos espaciais}, inflando potencialmente as incertezas em modelos lineares.
+    \item \textbf{Particionamento aleatório}, que não controla a autocorrelação espacial existente nos dados.
+\end{enumerate}
+
+Como medidas de controle, evitamos vazamento nas normalizações, utilizamos validação cruzada no conjunto de treinamento, reportamos predições OOF agregadas para diagnóstico e mantivemos critérios uniformes de seleção de modelos.

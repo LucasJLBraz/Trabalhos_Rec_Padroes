@@ -67,7 +67,7 @@ def mcovar4(X: np.ndarray) -> np.ndarray:
     Calcula, com o metodo 4, a matriz de covariância de um conjunto de dados.
 
     Args:
-        X (np.ndarray): Matriz de dados de entrada com dimensões (p, N), 
+        X (np.ndarray): Matriz de dados de entrada com dimensões (p, N),
                         onde p é o número de características e N é o número de amostras.
 
     Returns:

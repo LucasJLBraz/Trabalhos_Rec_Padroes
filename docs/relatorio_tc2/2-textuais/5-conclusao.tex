@@ -1,0 +1,8 @@
+\section{Conclusão}
+\label{chap:conclusao}
+
+A comparação sistemática evidenciou que a vetorização é essencial para o processamento de dados em larga escala, com o método \texttt{mcovar4} destacando-se pela economia de memória e latência mínima ao evitar a centralização explícita da matriz de dados.
+
+Contrariando hipóteses iniciais de singularidade devido à redundância de sensores, a análise técnica demonstrou que as matrizes de covariância dos datasets do robô \textit{Wall-Following} são inerentemente de posto completo e bem-condicionadas. Este achado é fundamental, pois valida a aplicabilidade direta de modelos probabilísticos quadráticos e transformações lineares sem a necessidade obrigatória de regularização para fins de inversão.
+
+A experimentação com a técnica de Tikhonov, embora não mandatória para este conjunto específico de dados, serviu como uma poderosa ferramenta de análise de sensibilidade, mostrando como a estabilidade numérica pode ser refinada.

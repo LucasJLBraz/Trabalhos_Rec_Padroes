@@ -1,0 +1,26 @@
+\section{Introdução}
+\label{cap:introducao}
+
+A caracterização estatística de classes em problemas de Reconhecimento de Padrões fundamenta-se, em grande medida, na modelagem das distribuições de probabilidade dos atributos. No caso de modelos Gaussianos, a matriz de covariância ($\mathbf{C}$) é o parâmetro que captura a dispersão dos dados e, mais criticamente, as interdependências lineares entre as variáveis. Uma estimação precisa de $\mathbf{C}$ não apenas define a geometria das fronteiras de decisão em classificadores quadráticos (CQG), mas também é a base para algoritmos de redução de dimensionalidade, como a Análise de Componentes Principais (PCA), que busca direções de máxima variância para projeção dos dados.
+
+Este Segundo Trabalho Computacional (TC2) propõe uma investigação sobre a implementação de diferentes métodos de cálculo da matriz de covariância, utilizando como estudo de caso o dataset \textit{Wall-Following Robot Navigation Data} do repositório UCI. Este conjunto de dados é particularmente desafiador devido à natureza das leituras de ultrassom: sensores dispostos circularmente ao redor de um robô móvel tendem a apresentar alta redundância, o que pode se traduz matematicamente em matrizes de covariância mal-condicionadas ou singulares. Analisamos aqui duas variantes do dataset (com 4 e 24 sensores) para observar como o aumento da dimensionalidade impacta a estabilidade numérica e a eficiência dos algoritmos.
+
+Para assegurar o rigor científico e a reprodutibilidade, o projeto foi estruturado de forma modular. Toda a lógica de cálculo reside no módulo \texttt{classificao\_padroes}, enquanto os experimentos e visualizações são conduzidos em notebooks Jupyter. O repositório completo pode ser acessado em: \url{https://github.com/LucasJLBraz/Trabalhos_Rec_Padroes}. A organização dos arquivos pertinentes a este trabalho é detalhada na Tabela~\ref{tab:estrutura_arquivos_tc2}.
+
+\begin{table}[h!]
+\centering
+\caption{Estrutura de diretórios e arquivos para o Trabalho Computacional 2.}
+\label{tab:estrutura_arquivos_tc2}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{ll}
+\toprule
+\textbf{Caminho} & \textbf{Descrição} \\
+\midrule
+\texttt{classificao\_padroes/models\_trabalho2.py} & Implementações manuais das matrizes de covariância. \\
+\texttt{notebooks/Trabalho Computacional 2/} & Notebooks de experimentos e análises estatísticas. \\
+\texttt{data/interin/} & Base de dados do robô \textit{Wall-Following} (4 e 24 sensores). \\
+\texttt{docs/relatorio\_tc2/} & Arquivos LaTeX para a geração deste relatório técnico. \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

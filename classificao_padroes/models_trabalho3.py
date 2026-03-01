@@ -415,9 +415,7 @@ class PCA:
         X_centralizado = X - self.media_
 
         # Passo 3: Estimar a matriz de covariância
-        # Nota: Usando rowvar=False porque X é (N_amostras, N_features)
-        # Se você tiver sua função mcovar4, substitua aqui: CovX = mcovar4(X_centered.T)
-        CovX = np.cov(X_centralizado, rowvar=False)
+        CovX = mcovar4(X_centralizado.T)  # (p x p)
 
         # Passo 4: Decomposição SVD na Matriz de Covariância
         # Na covariância (simétrica), SVD e Eigendecomposition são equivalentes.
