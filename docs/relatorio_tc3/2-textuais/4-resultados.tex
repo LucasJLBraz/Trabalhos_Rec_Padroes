@@ -1,7 +1,7 @@
 \section{Resultados e Discussão}
 \label{chap:resultados}
 
-A investigação empírica do Terceiro Trabalho Computacional permitiu confrontar o desempenho de modelos probabilísticos e baseados em protótipos em diferentes espaços de representação. A análise a seguir detalha o impacto da redução de dimensionalidade e a eficácia das arquiteturas de decisão implementadas, correlacionando-as com as características intrínsecas do dataset.
+A investigação dos resultados do Terceiro Trabalho Computacional permitiu confrontar o desempenho de modelos probabilísticos e baseados em protótipos em diferentes espaços de representação. A análise a seguir detalha o impacto da redução de dimensionalidade e a eficácia das arquiteturas de decisão implementadas, correlacionando-as com as características intrínsecas do dataset.
 
 \subsection{Análise de Variância e Seleção do Subespaço Ótimo}
 A aplicação do PCA sobre os 24 sensores revelou uma estrutura de dados com variância distribuída de forma gradual. Como ilustrado na Figura~\ref{fig:pca_plots}, nenhum atributo isolado domina a variância total do sistema. 
@@ -14,7 +14,7 @@ A aplicação do PCA sobre os 24 sensores revelou uma estrutura de dados com var
     \label{fig:pca_plots}
 \end{figure}
 
-A escolha do número de componentes principais ($q$) foi realizada de forma independente para cada classificador, buscando o ponto de equilíbrio entre compressão e acurácia. A Figura~\ref{fig:selecao_q} ilustra essa busca exaustiva. Para o **CQG**, o desempenho estabilizou em $q=18$, onde a remoção de componentes de baixíssima variância atuou como um filtro de ruído. Já para o **DMP Multi-Protótipo**, a redução para qualquer subespaço linear resultou em perda de desempenho em relação ao espaço original, evidenciando que os protótipos locais dependem da topologia completa dos 24 sensores.
+A escolha do número de componentes principais ($q$) foi realizada de forma independente para cada classificador, buscando o ponto de equilíbrio entre compressão e acurácia. A Figura~\ref{fig:selecao_q} ilustra essa busca exaustiva. Para o CQG, o desempenho estabilizou em $q=18$, onde a remoção de componentes de baixíssima variância atuou como um filtro de ruído. Já para o DMP, a redução para qualquer subespaço linear resultou em perda de desempenho em relação ao espaço original, evidenciando que os protótipos locais dependem da topologia completa dos 24 sensores.
 
 \begin{figure}[h]
     \centering
@@ -56,6 +56,6 @@ A análise confirma que a classe minoritária (\textit{Slight-Left-Turn}) aprese
     \centering
     \includegraphics[width=0.48\textwidth]{figuras/superficie_decisao_cqg.png}
     \includegraphics[width=0.48\textwidth]{figuras/superficie_decisao_dmp.png}
-    \caption{Superfícies de decisão projetadas (PCA 2D). À esquerda o CQG e à direita o DMP Multi-Protótipo.}
+    \caption{Superfícies de decisão projetadas (PCA 2D). À esquerda o CQG e à direita o DMP.}
     \label{fig:decision_boundaries}
 \end{figure}
