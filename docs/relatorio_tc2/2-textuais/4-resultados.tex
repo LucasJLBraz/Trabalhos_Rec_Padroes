@@ -49,7 +49,7 @@ A análise visual das distribuições dos sensores, ilustrada na Figura~\ref{fig
 \end{figure}
 
 \subsection{Análise de Condicionamento e Estabilidade Numérica}
-Um ponto crítico no cálculo de matrizes de covariância é o seu condicionamento numérico, que determina a sensibilidade da inversão da matriz a pequenas flutuações nos dados. A Tabela~\ref{tab:condicionamento} detalha os indicadores de invertibilidade (Posto, Cond e RCond) para os cenários global e por classe.
+Um ponto de atenção importante no cálculo de matrizes de covariância é o seu condicionamento numérico, que determina a sensibilidade da inversão da matriz a pequenas flutuações nos dados. A Tabela~\ref{tab:condicionamento} detalha os indicadores de invertibilidade (Posto, Cond e RCond) para os cenários global e por classe.
 
 \begin{table}[h]
 \centering
@@ -71,7 +71,7 @@ Slight-Right-Turn & 24 & $1{,}96 \times 10^{2}$ & $5{,}10 \times 10^{-3}$ & 4 & 
 }
 \end{table}
 
-Diferente do esperado para dados redundantes, todas as matrizes apresentaram \textbf{posto completo}. O número de condicionamento máximo observado foi da ordem de $10^{2}$, o que é considerado baixo na computação científica. Isso indica que as matrizes são \textbf{bem-condicionadas} e estáveis para operações de inversão.
+Diferente do esperado para dados redundantes, todas as matrizes apresentaram posto completo. O número de condicionamento máximo observado foi da ordem de $10^{2}$, o que é considerado baixo na computação científica. Isso indica que as matrizes são bem-condicionadas e estáveis para operações de inversão.
 
 Quanto à Regularização de Tikhonov ($\mathbf{C} + \epsilon \mathbf{I}$), os experimentos confirmaram que, devido ao excelente condicionamento nativo das matrizes, a técnica não produziu mudanças significativas nos resultados ou na capacidade de generalização. Em sistemas mal-condicionados, a regularização é vital para evitar a singularidade ($RCond \to 0$); contudo, neste dataset, as leituras dos sensores de ultrassom provaram ser suficientemente independentes para manter a integridade numérica das matrizes de covariância originais.
 
